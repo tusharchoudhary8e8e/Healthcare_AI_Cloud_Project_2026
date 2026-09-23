@@ -221,8 +221,15 @@ def save_patient_record(db, patient_id, ssn, diagnosis, vitals):
 }
 
 EPHI_SOURCE_NAMES = {
-    "ssn", "mrn", "diagnosis", "vitals", "patient_id", "patient_name", 
-    "dob", "ephi", "clinical_notes", "prescription", "heart_rate", "blood_pressure"
+    # HIPAA 18 Safe Harbor Identifiers
+    "ssn", "social_security", "mrn", "medical_record_number", "ehr_id",
+    "patient_id", "patient_name", "first_name", "last_name", "full_name",
+    "dob", "birth_date", "admission_date", "discharge_date",
+    "address", "zip_code", "postal_code", "phone", "email",
+    "device_serial", "udi", "biometric", "ip_address",
+    # Clinical Health Telemetry & FHIR Resources
+    "diagnosis", "vitals", "clinical_notes", "prescription", "heart_rate", "blood_pressure",
+    "ephi", "phi", "patient", "medical_history", "lab_result", "observation", "condition"
 }
 
 SECRET_KEYWORDS = {"secret", "password", "db_pass", "api_key", "token", "aws_secret", "aws_key", "private_key"}
@@ -242,7 +249,7 @@ KNOWN_VULNERABLE_PACKAGES = {
 class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
     """
     Abstract Syntax Tree (AST) Taint-Flow Analysis Engine for Healthcare Software.
-    Tracks data-flow from designated ePHI sources (parameters, clinical models) to insecure sinks:
+    Tracks semantic data-flow from designated ePHI sources (parameters, clinical models) to insecure sinks:
     - SINK-1: Unencrypted persistence (db.collection.insert_one)
     - SINK-2: Injection into dynamic SQL formatting (f-string, %, .format)
     - SINK-3: Leakage into unmasked telemetry/logging sinks
@@ -254,7 +261,8 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
         self.filename = filename
         self.tainted_vars = set()
         self.tainted_containers = {}  # dict_var -> set of tainted field names
-        self.sanitized_vars = set()   # variables produced by cryptographic operations
+        self.sanitized_vars = set()   # variables produced by verified cryptographic operations
+        self.insecure_urls = set()    # variables assigned to plain http:// endpoints
         self.findings = []
         self._finding_count = 0
 
@@ -263,10 +271,10 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
         return f"{prefix}-{self._finding_count:03d}"
 
     def _is_ephi_term(self, name: str) -> bool:
-        lower = name.lower()
+        lower = str(name).lower()
         return any(term in lower for term in EPHI_SOURCE_NAMES)
 
-    def visit_FunctionDef(self, node: ast.FunctionDef):
+    def _process_function(self, node):
         # 1. Parameter ePHI Source Identification
         for arg in node.args.args:
             if self._is_ephi_term(arg.arg):
@@ -305,6 +313,12 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                     
         self.generic_visit(node)
 
+    def visit_FunctionDef(self, node: ast.FunctionDef):
+        self._process_function(node)
+
+    def visit_AsyncFunctionDef(self, node: ast.AsyncFunctionDef):
+        self._process_function(node)
+
     def visit_Assign(self, node: ast.Assign):
         # 1. Hardcoded Secrets Detection
         for target in node.targets:
@@ -324,16 +338,73 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                                 "line": node.lineno,
                                 "detail": f"Credential variable '{target.id}' assigned static string literal directly in source code."
                             })
+                # Check for insecure cleartext HTTP URL assignment
+                if isinstance(node.value, ast.Constant) and isinstance(node.value.value, str):
+                    if node.value.value.startswith("http://") and "localhost" not in node.value.value and "127.0.0.1" not in node.value.value:
+                        self.insecure_urls.add(target.id)
 
-        # 2. Cryptographic Sanitation Tracking (e.g. ciphertext = aesgcm.encrypt(...))
+        # 2. Strict Cryptographic Sanitizer Verification
+        # Encryption counts ONLY if applied to a tainted variable on that path and key is not hardcoded
         if isinstance(node.value, ast.Call):
-            func_name = getattr(node.value.func, "attr", getattr(node.value.func, "id", ""))
-            if any(c in func_name.lower() for c in ["encrypt", "aesgcm", "kms", "hash", "sha256", "mask"]):
-                for target in node.targets:
-                    if isinstance(target, ast.Name):
-                        self.sanitized_vars.add(target.id)
+            func_name = getattr(node.value.func, "attr", getattr(node.value.func, "id", "")).lower()
+            crypto_keywords = ["encrypt", "aesgcm", "kms", "sha256", "mask_identifier", "mask"]
+            if any(c in func_name for c in crypto_keywords):
+                # Verify that at least one argument passed to the sanitizer is tainted
+                args_tainted = False
+                for arg in node.value.args:
+                    if isinstance(arg, ast.Name) and (arg.id in self.tainted_vars or arg.id in self.tainted_containers or self._is_ephi_term(arg.id)):
+                        args_tainted = True
+                    elif isinstance(arg, ast.JoinedStr):
+                        for part in arg.values:
+                            if isinstance(part, ast.FormattedValue) and getattr(part.value, "id", "") in self.tainted_vars:
+                                args_tainted = True
+                    elif isinstance(arg, ast.Call):
+                        args_tainted = True
 
-        # 3. Taint Propagation via Dictionaries (e.g. record = {"ssn": ssn, ...})
+                # Check if cryptographic key is passed as a hardcoded static string literal
+                key_is_hardcoded = False
+                for kw in node.value.keywords:
+                    if kw.arg in ["key", "secret", "password"] and isinstance(kw.value, ast.Constant):
+                        key_is_hardcoded = True
+                        self.findings.append({
+                            "id": self._next_id("AST-SEC"),
+                            "source": "SAST",
+                            "type": "HARDCODED_SECRETS",
+                            "severity": "CRITICAL",
+                            "title": f"Hardcoded Cryptographic Key in Sanitizer Call (Line {node.lineno})",
+                            "file": self.filename,
+                            "line": node.lineno,
+                            "detail": f"Sanitizer '{func_name}' supplied with static string literal as cryptographic key."
+                        })
+
+                if (args_tainted or "generate_data_key" in func_name) and not key_is_hardcoded:
+                    for target in node.targets:
+                        if isinstance(target, ast.Name):
+                            self.sanitized_vars.add(target.id)
+                            if target.id in self.tainted_vars:
+                                self.tainted_vars.remove(target.id)
+
+        # 3. Variable Aliasing (e.g. x = ssn; y = patient_record)
+        for target in node.targets:
+            if isinstance(target, ast.Name):
+                # Direct alias: x = ssn
+                if isinstance(node.value, ast.Name):
+                    if node.value.id in self.tainted_vars and node.value.id not in self.sanitized_vars:
+                        self.tainted_vars.add(target.id)
+                    if node.value.id in self.tainted_containers:
+                        self.tainted_containers[target.id] = set(self.tainted_containers[node.value.id])
+                        self.tainted_vars.add(target.id)
+                # Attribute alias: x = patient.ssn
+                elif isinstance(node.value, ast.Attribute):
+                    if (isinstance(node.value.value, ast.Name) and node.value.value.id in self.tainted_vars) or self._is_ephi_term(node.value.attr):
+                        self.tainted_vars.add(target.id)
+                # Subscript alias: x = record["ssn"]
+                elif isinstance(node.value, ast.Subscript):
+                    slice_val = getattr(node.value.slice, 'value', '') if isinstance(node.value.slice, ast.Constant) else ''
+                    if self._is_ephi_term(str(slice_val)) or (isinstance(node.value.value, ast.Name) and node.value.value.id in self.tainted_vars):
+                        self.tainted_vars.add(target.id)
+
+        # 4. Taint Propagation via Dictionaries (e.g. record = {"ssn": ssn, ...})
         if isinstance(node.value, ast.Dict):
             for target in node.targets:
                 if isinstance(target, ast.Name):
@@ -355,7 +426,8 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                         self.tainted_containers[dict_name] = tainted_keys
                         self.tainted_vars.add(dict_name)
 
-        # 4. Taint Propagation via Formatted Strings (f-string) and SQL Injection Sink
+        # 5. Dynamic SQL Injection Detection via f-string, .format(), and % formatting
+        # Case A: f-string
         if isinstance(node.value, ast.JoinedStr):
             fstring_tainted = False
             for part in node.value.values:
@@ -376,11 +448,52 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                             "source": "SAST",
                             "type": "SQL_INJECTION_EHR",
                             "severity": "CRITICAL",
-                            "title": f"AST Taint Flow: ePHI Variable Interpolated Into SQL Query String (Line {node.lineno})",
+                            "title": f"AST Taint Flow: ePHI Interpolated Into SQL Query via f-string (Line {node.lineno})",
                             "file": self.filename,
                             "line": node.lineno,
                             "detail": f"Unescaped ePHI taint flows directly into dynamic SQL query assigned to '{target.id}'."
                         })
+
+        # Case B: .format() call on SQL string
+        if isinstance(node.value, ast.Call) and isinstance(node.value.func, ast.Attribute) and node.value.func.attr == "format":
+            base_str = getattr(node.value.func.value, "value", "") if isinstance(node.value.func.value, ast.Constant) else ""
+            if any(kw in str(base_str).upper() for kw in ["SELECT ", "INSERT ", "UPDATE ", "DELETE ", "FROM "]):
+                has_taint = any(
+                    (isinstance(a, ast.Name) and (a.id in self.tainted_vars or self._is_ephi_term(a.id)))
+                    for a in node.value.args
+                )
+                if has_taint:
+                    self.findings.append({
+                        "id": self._next_id("AST-SQLI"),
+                        "source": "SAST",
+                        "type": "SQL_INJECTION_EHR",
+                        "severity": "CRITICAL",
+                        "title": f"AST Taint Flow: ePHI Interpolated via .format() in SQL Query (Line {node.lineno})",
+                        "file": self.filename,
+                        "line": node.lineno,
+                        "detail": f"Dynamic SQL string using .format() combines with ePHI parameters without parameterized sanitization."
+                    })
+
+        # Case C: % modulo operator on SQL string
+        if isinstance(node.value, ast.BinOp) and isinstance(node.value.op, ast.Mod):
+            base_str = getattr(node.value.left, "value", "") if isinstance(node.value.left, ast.Constant) else ""
+            if any(kw in str(base_str).upper() for kw in ["SELECT ", "INSERT ", "UPDATE ", "DELETE ", "FROM "]):
+                right_tainted = False
+                if isinstance(node.value.right, ast.Name) and (node.value.right.id in self.tainted_vars or self._is_ephi_term(node.value.right.id)):
+                    right_tainted = True
+                elif isinstance(node.value.right, ast.Tuple):
+                    right_tainted = any(isinstance(elt, ast.Name) and (elt.id in self.tainted_vars or self._is_ephi_term(elt.id)) for elt in node.value.right.elts)
+                if right_tainted:
+                    self.findings.append({
+                        "id": self._next_id("AST-SQLI"),
+                        "source": "SAST",
+                        "type": "SQL_INJECTION_EHR",
+                        "severity": "CRITICAL",
+                        "title": f"AST Taint Flow: ePHI Interpolated via % Operator in SQL Query (Line {node.lineno})",
+                        "file": self.filename,
+                        "line": node.lineno,
+                        "detail": f"Unescaped % formatting in clinical SQL query exposes database to arbitrary exfiltration."
+                    })
 
         self.generic_visit(node)
 
@@ -404,21 +517,30 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                             "detail": f"Object '{arg.id}' carrying unencrypted ePHI [{tainted_fields}] persists to database without cryptographic envelope."
                         })
 
-        # 2. Insecure Network Transmission Sink (e.g. requests.post("http://..."))
+        # 2. Insecure Network Transmission Sink (e.g. requests.post("http://...") or requests.post(http_endpoint))
         if func_name in ["post", "get", "put", "delete", "request"]:
             for arg in node.args:
+                is_insecure_http = False
+                target_url = ""
                 if isinstance(arg, ast.Constant) and isinstance(arg.value, str):
                     if arg.value.startswith("http://") and "localhost" not in arg.value and "127.0.0.1" not in arg.value:
-                        self.findings.append({
-                            "id": self._next_id("AST-NET"),
-                            "source": "DAST",
-                            "type": "UNENCRYPTED_TRANSMISSION",
-                            "severity": "CRITICAL",
-                            "title": f"Cleartext ePHI Transport Sink: Insecure HTTP Protocol Detected (Line {node.lineno})",
-                            "file": self.filename,
-                            "line": node.lineno,
-                            "detail": f"Network transmission call '{func_name}' initiates plaintext HTTP connection to: {arg.value}"
-                        })
+                        is_insecure_http = True
+                        target_url = arg.value
+                elif isinstance(arg, ast.Name) and arg.id in getattr(self, "insecure_urls", set()):
+                    is_insecure_http = True
+                    target_url = f"variable '{arg.id}'"
+
+                if is_insecure_http:
+                    self.findings.append({
+                        "id": self._next_id("AST-NET"),
+                        "source": "DAST",
+                        "type": "UNENCRYPTED_TRANSMISSION",
+                        "severity": "CRITICAL",
+                        "title": f"Cleartext ePHI Transport Sink: Insecure HTTP Protocol Detected (Line {node.lineno})",
+                        "file": self.filename,
+                        "line": node.lineno,
+                        "detail": f"Network transmission call '{func_name}' initiates plaintext HTTP connection to: {target_url}"
+                    })
 
         # 3. ePHI Leakage into Logging/Telemetry Sink
         if func_name in ["info", "debug", "warning", "error", "critical", "print"]:
@@ -431,8 +553,17 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                         if isinstance(part, ast.FormattedValue) and isinstance(part.value, ast.Name):
                             if part.value.id in self.tainted_vars or self._is_ephi_term(part.value.id):
                                 call_tainted = True
+                        elif isinstance(part, ast.Constant) and isinstance(part.value, str):
+                            if any(term in part.value.lower() for term in ["ssn:", "mrn:", "patient:", "diagnosis:", "ssn ", "mrn "]):
+                                call_tainted = True
+                elif isinstance(arg, ast.BinOp) and isinstance(arg.op, ast.Mod):
+                    if isinstance(arg.right, ast.Name) and (arg.right.id in self.tainted_vars or self._is_ephi_term(arg.right.id)):
+                        call_tainted = True
+                elif isinstance(arg, ast.Call) and isinstance(arg.func, ast.Attribute) and arg.func.attr == "format":
+                    if any(isinstance(a, ast.Name) and (a.id in self.tainted_vars or self._is_ephi_term(a.id)) for a in arg.args):
+                        call_tainted = True
                 elif isinstance(arg, ast.Constant) and isinstance(arg.value, str):
-                    if any(term in arg.value.lower() for term in ["ssn:", "mrn:", "patient:", "diagnosis:"]):
+                    if any(term in arg.value.lower() for term in ["ssn:", "mrn:", "patient:", "diagnosis:", "ssn ", "mrn "]):
                         call_tainted = True
             if call_tainted:
                 self.findings.append({
@@ -446,7 +577,35 @@ class HealthcareASTTaintAnalyzer(ast.NodeVisitor):
                     "detail": f"Logging/telemetry sink '{func_name}' serializes unmasked clinical identifiers into system logs."
                 })
 
+        # 4. Direct SQL Query Execution Sinks (e.g. cursor.execute("SELECT ... %s" % ssn))
+        if func_name in ["execute", "raw_query", "query"]:
+            if node.args:
+                first_arg = node.args[0]
+                is_direct_sqli = False
+                if isinstance(first_arg, ast.JoinedStr):
+                    is_direct_sqli = any(
+                        isinstance(p, ast.FormattedValue) and getattr(p.value, "id", "") in self.tainted_vars
+                        for p in first_arg.values
+                    )
+                elif isinstance(first_arg, ast.BinOp) and isinstance(first_arg.op, ast.Mod):
+                    is_direct_sqli = True
+                elif isinstance(first_arg, ast.Call) and getattr(first_arg.func, "attr", "") == "format":
+                    is_direct_sqli = True
+                
+                if is_direct_sqli:
+                    self.findings.append({
+                        "id": self._next_id("AST-SQLI"),
+                        "source": "SAST",
+                        "type": "SQL_INJECTION_EHR",
+                        "severity": "CRITICAL",
+                        "title": f"AST Direct SQL Injection Sink: Unparameterized Execution at '{func_name}' (Line {node.lineno})",
+                        "file": self.filename,
+                        "line": node.lineno,
+                        "detail": f"Direct database execution method '{func_name}' consumes unescaped formatted string with ePHI parameters."
+                    })
+
         self.generic_visit(node)
+
 
 
 class ScannerSimulator:

@@ -110,3 +110,35 @@ class TestCounterfactualSolver:
                     "historical_breach_factor": 0.85}
         result = xai_engine.solve_constrained_counterfactual(features)
         assert len(result["actions_taken"]) >= 1
+
+
+class TestFindingLevelShapley:
+    """Verify finding-level Shapley values and game theory efficiency axiom."""
+    
+    def test_finding_level_shapley_efficiency(self):
+        findings = [
+            {"id": "F1", "type": "UNENCRYPTED_PHI_STORAGE", "severity": "CRITICAL"},
+            {"id": "F2", "type": "HARDCODED_SECRETS", "severity": "CRITICAL"},
+            {"id": "F3", "type": "SQL_INJECTION_EHR", "severity": "CRITICAL"}
+        ]
+        res = xai_engine.compute_finding_level_shapley(findings, 0.90)
+        attrs = res["finding_attributions"]
+        assert len(attrs) == 3
+        # Efficiency axiom: sum of finding Shapley values equals total excess risk
+        sum_phi = sum(a["finding_shapley_value"] for a in attrs)
+        assert abs(sum_phi - res["total_excess_finding_risk"]) < 0.05
+        # Clause attributions present
+        assert "clause_attributions" in res
+        assert len(res["clause_attributions"]) > 0
+
+    def test_milp_solver_and_closed_loop(self):
+        findings = [
+            {"id": "F1", "type": "UNENCRYPTED_PHI_STORAGE", "severity": "CRITICAL", "title": "Unencrypted PHI"},
+            {"id": "F2", "type": "HARDCODED_SECRETS", "severity": "CRITICAL", "title": "Hardcoded DB Pass"},
+            {"id": "F3", "type": "SQL_INJECTION_EHR", "severity": "CRITICAL", "title": "SQL Injection"}
+        ]
+        milp_res = xai_engine.solve_milp_counterfactual(findings, current_risk=75.0, target_risk=24.0)
+        assert milp_res["projected_risk_score"] <= 24.0
+        assert milp_res["unblocks_pipeline"] is True
+        assert len(milp_res["selected_remediations"]) >= 1
+

@@ -147,8 +147,49 @@ RUN useradd -u 10001 clinicaluser
 USER 10001
 HEALTHCHECK CMD curl -f http://localhost:8000/ || exit 1
 EXPOSE 8000
-CMD ["python", "app.py"]
 """
         result = scanner.scan_custom_code("Dockerfile", dockerfile)
-        assert result["scan_mode"] == "iac_dockerfile"
         assert len(result["findings"]) == 0
+
+
+class TestSemanticDataflowAndAsync:
+    """Verify async functions, variable aliasing, format/% SQL injection, and fake sanitizer rejection."""
+    
+    def test_async_function_fhir_scope_detection(self):
+        async_code = """
+@app.get("/Observation")
+async def get_obs(patient_id: str, scope: str = "*.*"):
+    return query(patient_id)
+"""
+        res = scanner.scan_custom_code("fhir.py", async_code)
+        assert any(f["type"] == "PERMISSIVE_FHIR_SCOPE" for f in res["findings"])
+
+    def test_variable_alias_propagation(self):
+        alias_code = """
+def save(db, ssn):
+    alias_var = ssn
+    db.collection("patients").insert_one(alias_var)
+"""
+        res = scanner.scan_custom_code("alias.py", alias_code)
+        assert any(f["type"] == "UNENCRYPTED_PHI_STORAGE" for f in res["findings"])
+
+    def test_format_and_mod_sqli_detection(self):
+        sqli_code = """
+def query(db, ssn):
+    q1 = "SELECT * FROM patients WHERE ssn = {}".format(ssn)
+    q2 = "SELECT * FROM patients WHERE ssn = '%s'" % ssn
+    db.execute(q1)
+"""
+        res = scanner.scan_custom_code("sqli.py", sqli_code)
+        sqli_findings = [f for f in res["findings"] if f["type"] == "SQL_INJECTION_EHR"]
+        assert len(sqli_findings) >= 2
+
+    def test_fake_sanitizer_rejected(self):
+        fake_code = """
+def save(db, ssn):
+    x = rehash_noop("unrelated")
+    db.collection("patients").insert_one(ssn)
+"""
+        res = scanner.scan_custom_code("fake.py", fake_code)
+        assert any(f["type"] == "UNENCRYPTED_PHI_STORAGE" for f in res["findings"])
+

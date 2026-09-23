@@ -127,9 +127,16 @@ def run_devsecops_assessment(req: ScanRequest):
     # 4. Predict Risk & Gate Decision
     prediction = ml_risk_engine.predict(feature_vector, feature_dict)
 
-    # 5. Compute Explainable AI (SHAP attributions & Counterfactuals)
+    # 5. Compute Explainable AI (SHAP attributions & Finding-Level Shapley & Counterfactuals)
     xai_data = xai_engine.compute_shap_explanations(feature_dict, prediction["risk_score"])
-    counterfactuals = xai_engine.generate_counterfactuals(feature_dict, prediction["risk_score"])
+    xai_data["finding_shapley"] = xai_engine.compute_finding_level_shapley(findings, float(scan_data.get("domain_risk_weight", 0.90)))
+    counterfactuals = xai_engine.generate_counterfactuals(
+        feature_dict, 
+        prediction["risk_score"],
+        findings=findings,
+        raw_code=scan_data.get("raw_code", ""),
+        filename=req.filename
+    )
     narratives = xai_engine.generate_narrative_explanation(prediction, xai_data, compliance_eval)
 
     # 6. Generate Automated Code Remediations & Diffs
@@ -137,7 +144,7 @@ def run_devsecops_assessment(req: ScanRequest):
 
     return {
         "pipeline_metadata": {
-            "timestamp": datetime.datetime.now().strftime("%Y-%m-%d %H:%M:%S UTC"),
+            "timestamp": datetime.datetime.now(datetime.timezone.utc).strftime("%Y-%m-%d %H:%M:%S UTC"),
             "scenario_id": scan_data.get("id"),
             "service_name": scan_data.get("name"),
             "service_type": scan_data.get("service_type"),

@@ -201,3 +201,6 @@ class HealthcareComplianceEngine:
                 "overall_compliance_penalty": min(100.0, round((hipaa_impact_score + fda_impact_score + fhir_impact_score) / 2.2, 1))
             }
         }
+
+healthcare_compliance_engine = HealthcareComplianceEngine()
+

@@ -19,6 +19,12 @@ FEATURE_FRIENDLY_NAMES = {
     "historical_breach_factor": "Service Criticality & Breach Weight"
 }
 
+import itertools
+import math
+from typing import Dict, Any, List, Optional
+from scipy.optimize import milp, LinearConstraint
+from backend.ml_engine import FEATURE_NAMES, ml_risk_engine
+from backend.healthcare_compliance import healthcare_compliance_engine
 import shap
 
 class ExplainableAIEngine:
@@ -80,6 +86,95 @@ class ExplainableAIEngine:
             "top_mitigating_factors": mitigating_factors[:3],
             "methodology": "Official Tree-SHAP (Lundberg et al., Nature MI 2020)"
         }
+
+    def compute_finding_level_shapley(self, findings: List[Dict[str, Any]], domain_risk_weight: float = 0.90) -> Dict[str, Any]:
+        """
+        Computes exact cooperative game-theoretic Shapley values at the individual finding level.
+        Each finding F_j is a player; the characteristic function v(S) evaluates the ML risk model
+        when only findings in S are present. Satisfies Local Efficiency: sum(Phi_j) = v(All) - v(Empty).
+        """
+        k = len(findings)
+        if k == 0:
+            return {"finding_attributions": [], "clause_attributions": {}, "total_excess_finding_risk": 0.0}
+
+        def eval_subset(subset_indices):
+            sub = [findings[i] for i in subset_indices]
+            comp = healthcare_compliance_engine.evaluate_findings(sub)
+            v, fd = ml_risk_engine.extract_features({"findings": sub, "domain_risk_weight": domain_risk_weight}, comp)
+            return ml_risk_engine.predict(v, fd)["risk_score"]
+
+        v_empty = eval_subset([])
+        v_all = eval_subset(list(range(k)))
+
+        shap_findings = [0.0] * k
+        all_indices = set(range(k))
+
+        # Exact coalition enumeration for k <= 8; permutation sampling for k > 8
+        if k <= 8:
+            for i in range(k):
+                others = list(all_indices - {i})
+                for r in range(len(others) + 1):
+                    for S in itertools.combinations(others, r):
+                        w = math.factorial(len(S)) * math.factorial(k - len(S) - 1) / math.factorial(k)
+                        shap_findings[i] += w * (eval_subset(list(S) + [i]) - eval_subset(list(S)))
+        else:
+            n_samples = 128
+            for _ in range(n_samples):
+                perm = list(np.random.permutation(k))
+                curr_set = []
+                curr_val = v_empty
+                for idx in perm:
+                    curr_set.append(idx)
+                    new_val = eval_subset(curr_set)
+                    shap_findings[idx] += (new_val - curr_val) / n_samples
+                    curr_val = new_val
+
+        finding_attributions = []
+        clause_attributions = {}
+        for idx, f in enumerate(findings):
+            phi = round(float(shap_findings[idx]), 2)
+            fid = f.get("id", f"AST-{idx+1:03d}")
+            ftype = f.get("type", "UNKNOWN")
+
+            # Map finding to regulatory statutory clause
+            clause = "General Clinical DevSecOps Baseline"
+            if "UNENCRYPTED_PHI_STORAGE" in ftype:
+                clause = "HIPAA §164.312(a)(2)(iv) (Encryption at Rest)"
+            elif "UNENCRYPTED_TRANSMISSION" in ftype:
+                clause = "HIPAA §164.312(e)(1) (Transmission Security)"
+            elif "SQL_INJECTION" in ftype:
+                clause = "CWE-89 / HIPAA §164.312(a)(1) (Access Controls)"
+            elif "HARDCODED_SECRETS" in ftype:
+                clause = "HIPAA §164.312(d) (Person or Entity Authentication)"
+            elif "PHI_IN_LOGS" in ftype or "AUDIT" in ftype:
+                clause = "HIPAA §164.312(b) (Audit Controls)"
+            elif "PERMISSIVE_FHIR_SCOPE" in ftype:
+                clause = "SMART-on-FHIR / HIPAA §164.312(a)(1) (Least Privilege)"
+            elif "CVE" in ftype or "DEPENDENCY" in ftype:
+                clause = "FDA SaMD Section 524B (SBOM & Vulnerability Mitigation)"
+            elif "IAC" in ftype:
+                clause = "FDA SaMD Container Isolation / CIS Benchmark"
+
+            clause_attributions[clause] = round(clause_attributions.get(clause, 0.0) + max(0.0, phi), 2)
+
+            finding_attributions.append({
+                "finding_id": fid,
+                "finding_type": ftype,
+                "severity": f.get("severity", "MEDIUM"),
+                "title": f.get("title", ftype),
+                "file": f.get("file", ""),
+                "line": f.get("line", 1),
+                "finding_shapley_value": phi,
+                "statutory_clause": clause
+            })
+
+        finding_attributions.sort(key=lambda x: x["finding_shapley_value"], reverse=True)
+        return {
+            "finding_attributions": finding_attributions,
+            "clause_attributions": clause_attributions,
+            "total_excess_finding_risk": round(v_all - v_empty, 2)
+        }
+
         
     def solve_constrained_counterfactual(self, original_features: Dict[str, float], target_risk: float = 24.0) -> Dict[str, Any]:
         """
@@ -178,18 +273,163 @@ class ExplainableAIEngine:
             "final_gate_decision": final_res["gate_decision"],
             "final_risk_tier": final_res["risk_tier"],
             "total_effort_cost": round(total_effort, 1),
-            "actions_taken": actions_taken
+            "actions_taken": actions_taken,
+            "optimization_method": "Mixed-Integer Linear Programming (scipy.optimize.milp) & Coordinate Descent"
         }
 
-    def generate_counterfactuals(self, original_features: Dict[str, float], original_score: float) -> List[Dict[str, Any]]:
+    def solve_milp_counterfactual(
+        self, 
+        findings: List[Dict[str, Any]], 
+        current_risk: float, 
+        target_risk: float = 24.0, 
+        raw_code: str = "", 
+        filename: str = "clinical_service.py"
+    ) -> Dict[str, Any]:
+        """
+        Discrete Mixed-Integer Linear Programming (MILP) Remediation Optimizer:
+            min_{z} sum_j (c_j * z_j)
+        subject to:
+            sum_j (Phi_j * z_j) >= current_risk - target_risk
+            z_j in {0, 1}
+            z_j = 1 for all HIPAA Zero-Tolerance mandatory findings
+        Followed by closed-loop re-scan verification on patched source code.
+        """
+        k = len(findings)
+        if k == 0:
+            return {
+                "selected_remediations": [],
+                "total_effort_cost": 0.0,
+                "projected_risk_score": current_risk,
+                "projected_gate_decision": "APPROVED_AUTO_DEPLOY",
+                "closed_loop_verified": True
+            }
+
+        # 1. Compute finding-level Shapley blame weights
+        shap_res = self.compute_finding_level_shapley(findings)
+        phi_vals = np.array([f["finding_shapley_value"] for f in shap_res["finding_attributions"]])
+        
+        effort_map = {
+            "SQL_INJECTION_EHR": 6.0,
+            "UNENCRYPTED_PHI_STORAGE": 5.5,
+            "UNENCRYPTED_TRANSMISSION": 5.0,
+            "HARDCODED_SECRETS": 4.5,
+            "CRITICAL_CVE_DEPENDENCY": 3.5,
+            "PHI_IN_LOGS": 3.0,
+            "INSECURE_IAC_K8S_EHR": 2.5,
+            "PERMISSIVE_FHIR_SCOPE": 2.5,
+            "MISSING_AUDIT_LOG": 2.0
+        }
+        costs = np.array([effort_map.get(f["finding_type"], 3.0) for f in shap_res["finding_attributions"]])
+        needed_drop = max(0.0, current_risk - target_risk)
+        
+        # Mandatory HIPAA constraints (bound z_j to [1, 1])
+        lb = [
+            1.0 if f["severity"] == "CRITICAL" or "UNENCRYPTED" in f["finding_type"] else 0.0 
+            for f in shap_res["finding_attributions"]
+        ]
+        ub = [1.0] * k
+        bounds = (lb, ub)
+        
+        A = np.array([phi_vals])
+        constraints = LinearConstraint(A, lb=[needed_drop], ub=[np.inf])
+        integrality = np.ones(k)
+        
+        try:
+            res = milp(c=costs, integrality=integrality, constraints=constraints, bounds=bounds)
+            z_opt = res.x if res.success else np.array(lb)
+            total_cost = float(res.fun) if res.success else float(np.sum(costs * np.array(lb)))
+        except Exception as e:
+            print(f"MILP solver fallback: {e}")
+            z_opt = np.array(lb)
+            total_cost = float(np.sum(costs * np.array(lb)))
+
+        selected_remediations = []
+        for idx, (f, z) in enumerate(zip(shap_res["finding_attributions"], z_opt)):
+            if z > 0.5:
+                selected_remediations.append({
+                    "finding_id": f["finding_id"],
+                    "finding_type": f["finding_type"],
+                    "title": f["title"],
+                    "remediation_cost_pts": costs[idx],
+                    "risk_reduction_pts": phi_vals[idx],
+                    "is_mandatory_regulatory_fix": lb[idx] == 1.0
+                })
+
+        # 2. Closed-Loop Verification: simulate patches and re-scan
+        closed_loop_verified = False
+        re_scan_score = max(0.0, round(current_risk - float(np.sum(phi_vals * z_opt)), 1))
+        re_scan_gate = "APPROVED_AUTO_DEPLOY" if re_scan_score <= target_risk else "MANUAL_REVIEW_REQUIRED"
+        
+        if raw_code:
+            try:
+                from backend.scanner_simulator import scanner_simulator
+                from backend.remediation_engine import remediation_engine
+                
+                rems = remediation_engine.get_remediations_for_findings([
+                    {"type": r["finding_type"], "title": r["title"]} for r in selected_remediations
+                ])
+                patched_code = raw_code
+                for r in rems:
+                    cb = r.get("code_before", "").strip()
+                    ca = r.get("code_after", "").strip()
+                    if cb and cb in patched_code:
+                        patched_code = patched_code.replace(cb, ca)
+                
+                re_scan = scanner_simulator.scan_custom_code(filename, patched_code)
+                re_comp = healthcare_compliance_engine.evaluate_findings(re_scan.get("findings", []))
+                re_vec, re_fd = ml_risk_engine.extract_features(re_scan, re_comp)
+                re_pred = ml_risk_engine.predict(re_vec, re_fd)
+                
+                re_scan_score = re_pred["risk_score"]
+                re_scan_gate = re_pred["gate_decision"]
+                closed_loop_verified = True
+            except Exception as e:
+                print(f"Closed-loop re-scan verification error: {e}")
+
+        return {
+            "selected_remediations": selected_remediations,
+            "total_effort_cost": round(total_cost, 1),
+            "projected_risk_score": re_scan_score,
+            "projected_gate_decision": re_scan_gate,
+            "unblocks_pipeline": re_scan_gate in ["APPROVED_AUTO_DEPLOY", "APPROVED_WITH_WARNINGS"],
+            "finding_shapley_analysis": shap_res,
+            "closed_loop_verified": closed_loop_verified,
+            "solver_algorithm": "Mixed-Integer Linear Programming (scipy.optimize.milp) + Closed-Loop AST Re-Scan"
+        }
+
+    def generate_counterfactuals(
+        self, 
+        original_features: Dict[str, float], 
+        original_score: float,
+        findings: Optional[List[Dict[str, Any]]] = None,
+        raw_code: str = "",
+        filename: str = "clinical_service.py"
+    ) -> List[Dict[str, Any]]:
         """
         Generates actionable 'What-If' remediation scenarios showing how specific code fixes
-        drop risk from Critical/High to Low.
+        drop risk from Critical/High to Low via discrete MILP and coordinate descent.
         """
         scenarios = []
         
-        # Scenario 0 (Novelty): Constrained Inverse Optimization (Pareto Minimal Effort)
-        if original_score > 20.0 or original_features.get("sast_critical", 0) > 0:
+        # Scenario 0 (Novelty): Discrete MILP Optimization with Closed-Loop Re-Scan Verification
+        if findings and len(findings) > 0:
+            milp_plan = self.solve_milp_counterfactual(findings, original_score, target_risk=24.0, raw_code=raw_code, filename=filename)
+            actions_list = [f"Fix {r['title']} (Cost: {r['remediation_cost_pts']} pts)" for r in milp_plan["selected_remediations"]]
+            delta_milp = round(original_score - milp_plan["projected_risk_score"], 1)
+            
+            scenarios.append({
+                "id": "optimal_milp_plan",
+                "title": f"Discrete MILP Remediation Plan (Effort: {milp_plan['total_effort_cost']} pts)",
+                "action": "; ".join(actions_list) if actions_list else "Code baseline satisfies regulatory threshold.",
+                "new_risk_score": milp_plan["projected_risk_score"],
+                "risk_reduction_points": max(0.0, delta_milp),
+                "new_risk_tier": "LOW" if milp_plan["projected_risk_score"] < 20.0 else "MEDIUM",
+                "new_gate_decision": milp_plan["projected_gate_decision"],
+                "unblocks_pipeline": milp_plan["unblocks_pipeline"],
+                "closed_loop_verified": milp_plan["closed_loop_verified"],
+                "optimization_method": "Mixed-Integer Linear Programming (scipy.optimize.milp)"
+            })
+        else:
             opt_sol = self.solve_constrained_counterfactual(original_features, target_risk=24.0)
             delta_opt = round(original_score - opt_sol["final_score"], 1)
             actions_summary = "; ".join(opt_sol["actions_taken"]) if opt_sol["actions_taken"] else "Maintain secure posture."
@@ -281,17 +521,17 @@ class ExplainableAIEngine:
         
         return scenarios
 
-
     def generate_narrative_explanation(self, prediction: Dict[str, Any], xai_data: Dict[str, Any], compliance_data: Dict[str, Any]) -> Dict[str, str]:
         """Generates dual-perspective natural language summaries for Developers and Compliance Officers."""
         score = prediction["risk_score"]
         top_drivers = xai_data.get("top_risk_drivers", [])
         driver_names = ", ".join([d["feature_name"] for d in top_drivers[:3]]) if top_drivers else "Clean baseline codebase"
+        driver_points = sum([d["shap_value"] for d in top_drivers])
         
         # Developer narrative
         dev_narrative = (
             f"The AI Risk Assessment assigned a risk score of {score}/100 ({prediction['risk_tier']}). "
-            f"The primary risk contributors driving this pipeline block are: {driver_names}. "
+            f"The primary risk contributors driving this pipeline block are: {driver_names} (+{driver_points:.1f} risk points). "
             f"To unblock the CI/CD gate, apply cryptographic fixes to ePHI data paths and eliminate hardcoded secrets."
         )
         
@@ -299,8 +539,8 @@ class ExplainableAIEngine:
         violations_count = compliance_data.get("total_violations", 0)
         compliance_narrative = (
             f"Audit Alert: Deployment presents an estimated breach likelihood of {prediction['breach_probability'] * 100:.1f}%. "
-            f"{violations_count} regulatory control violations were mapped against HIPAA ?164.312 and FDA SaMD cybersecurity requirements. "
-            f"SHAP attribution confirms that lack of ePHI encryption and authentication safeguards represent {sum([d['shap_value'] for d in top_drivers]):.1f} points of total risk deviation."
+            f"{violations_count} regulatory control violations were mapped against HIPAA §164.312 and FDA SaMD cybersecurity requirements. "
+            f"Tree-SHAP attribution confirms that lack of ePHI encryption and authentication safeguards represent {driver_points:.1f} points of total risk deviation."
         )
         
         return {
@@ -309,3 +549,4 @@ class ExplainableAIEngine:
         }
 
 xai_engine = ExplainableAIEngine()
+

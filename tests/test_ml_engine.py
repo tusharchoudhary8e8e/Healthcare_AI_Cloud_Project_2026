@@ -75,3 +75,36 @@ class TestFeatureExtraction:
         assert fdict["sca_max_cvss"] == 8.8
         assert fdict["compliance_penalty"] == 45.0
         assert vec.shape == (1, 10)
+
+
+class TestMonotonicityAndPriors:
+    """Verify monotonic constraints (adding findings can never decrease risk) and HHS priors."""
+    
+    def test_hhs_priors_loaded(self):
+        priors = ml_risk_engine.hhs_empirical_priors
+        assert "total_hhs_cases" in priors
+        assert priors["total_hhs_cases"] >= 1600
+        assert priors["theft_unencrypted_prior"] > 0.40
+        assert priors["calibrated_weight_unencrypted"] > 15.0
+
+    def test_model_cv_metrics(self):
+        metrics = ml_risk_engine.model_metrics
+        assert "5_fold_cv_r2_mean" in metrics
+        assert metrics["5_fold_cv_r2_mean"] > 0.85
+        assert metrics["monotonic_constraints_enforced"] is True
+
+    def test_monotonicity_property(self):
+        """Property-based verification: increasing vulnerability counts never decreases predicted score."""
+        baseline_dict = {f: 0.0 for f in FEATURE_NAMES}
+        baseline_dict["historical_breach_factor"] = 0.85
+        base_vec = np.array([[baseline_dict[k] for k in FEATURE_NAMES]])
+        base_pred = ml_risk_engine.predict(base_vec, baseline_dict)["risk_score"]
+        
+        # Test increasing each of the 9 actionable features
+        for feat in FEATURE_NAMES[:9]:
+            inc_dict = dict(baseline_dict)
+            inc_dict[feat] = 3.0 if "count" in feat or "sast" in feat or "dast" in feat or "flows" in feat else 25.0
+            inc_vec = np.array([[inc_dict[k] for k in FEATURE_NAMES]])
+            inc_pred = ml_risk_engine.predict(inc_vec, inc_dict)["risk_score"]
+            assert inc_pred >= base_pred, f"Monotonicity violated for feature {feat}: {inc_pred} < {base_pred}"
+

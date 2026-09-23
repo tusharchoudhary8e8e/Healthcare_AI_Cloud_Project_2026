@@ -22,3 +22,6 @@ llvmlite>=0.42.0
 
 # Testing & Verification
 pytest>=8.0.0
+
+# Documentation & PDF Report Generation
+fpdf>=1.7.2
