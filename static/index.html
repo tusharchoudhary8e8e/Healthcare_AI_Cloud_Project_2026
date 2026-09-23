@@ -3,219 +3,261 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Intelligent Healthcare DevSecOps XAI Risk Framework</title>
+    <title>AegisMed — Healthcare DevSecOps XAI Framework</title>
     <!-- Fonts & Icons -->
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
-    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@300;400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600&display=swap" rel="stylesheet">
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/styles.css?v=2.2">
+    <link rel="stylesheet" href="/static/styles.css?v=3.0">
 </head>
 <body>
-    <!-- Top App Navigation -->
+    <!-- Top Minimalist App Header -->
     <header class="app-header">
         <div class="header-left">
-            <div class="logo-shield">
-                <i class="fa-solid fa-heart-pulse logo-icon"></i>
+            <div class="brand-icon">
+                <i class="fa-solid fa-shield-halved"></i>
             </div>
-            <div class="logo-text">
+            <div>
                 <div class="brand-title">
-                    <span>AegisMed</span> DevSecOps <span class="xai-pill">XAI</span>
+                    AegisMed <span class="tag">DEVSECOPS XAI</span>
                 </div>
-                <div class="brand-subtitle">Intelligent Healthcare Software Delivery Risk Assessment</div>
+                <div class="brand-subtitle">Clinical Software CI/CD Risk Assessment & Gating Engine</div>
             </div>
         </div>
 
         <div class="header-center">
-            <div class="scenario-selector-container">
-                <label for="scenarioSelect"><i class="fa-solid fa-flask"></i> Scenario:</label>
+            <div class="scenario-select-wrapper">
+                <label for="scenarioSelect"><i class="fa-solid fa-microscope"></i> Target Scenario:</label>
                 <select id="scenarioSelect" class="styled-select">
-                    <option value="ehr-patient-portal">&#x1F3E5; EHR Patient Portal (High Risk: Unencrypted PHI & SQLi)</option>
-                    <option value="smart-fhir-gateway">&#x1F4E1; SMART-on-FHIR Gateway (Critical: Scope & Log Leak)</option>
-                    <option value="samd-imaging-worker">&#x1F9EC; SaMD Imaging Worker (FDA 510k: LibWebP CVE & Root)</option>
-                    <option value="hardened-hospital-microservice">&#x2705; Hardened Hospital API (Compliant Baseline)</option>
+                    <option value="ehr-patient-portal">EHR Patient Portal (High Risk: Unencrypted PHI & SQLi)</option>
+                    <option value="smart-fhir-gateway">SMART-on-FHIR Gateway (Critical: Async Scope & Log Leak)</option>
+                    <option value="samd-imaging-worker">SaMD Imaging Worker (FDA 510k: LibWebP CVE & Root Docker)</option>
+                    <option value="hardened-hospital-microservice">Hardened Hospital Microservice (Compliant Baseline)</option>
                 </select>
             </div>
         </div>
 
         <div class="header-right">
-            <button id="btnDatasets" class="btn btn-secondary" onclick="openDatasetsModal()" style="border-color: rgba(16, 185, 129, 0.4); color: #34d399; cursor: pointer;">
-                <i class="fa-solid fa-database"></i> Training Datasets
+            <button id="btnDatasets" class="btn btn-secondary">
+                <i class="fa-solid fa-database text-blue"></i> Datasets (1,656 Breaches)
             </button>
-            <button id="btnAwsArch" class="btn btn-secondary" onclick="openAwsModal()">
-                <i class="fa-brands fa-aws"></i> AWS Architecture
+            <button id="btnAwsArch" class="btn btn-secondary">
+                <i class="fa-brands fa-aws text-warning"></i> AWS Architecture
             </button>
             <button id="btnExportAudit" class="btn btn-secondary">
-                <i class="fa-solid fa-file-contract"></i> Export Audit Log
+                <i class="fa-solid fa-file-pdf"></i> Export Audit Certificate
             </button>
             <button id="btnRunScan" class="btn btn-primary">
-                <i class="fa-solid fa-play"></i> Trigger CI/CD Scan
+                <i class="fa-solid fa-play"></i> Run CI/CD Scan
             </button>
         </div>
     </header>
 
+    <!-- Top Tab Navigation Bar -->
+    <nav class="tab-navbar">
+        <button class="nav-tab-btn active" data-tab="tab-overview">
+            <i class="fa-solid fa-gauge-high"></i> 1. Overview & Policy Gate
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-ast">
+            <i class="fa-solid fa-code-branch"></i> 2. AST Taint & Dataflow
+            <span class="badge-pill" id="tabFindingsCount">4 findings</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-xai">
+            <i class="fa-solid fa-brain"></i> 3. Two-Tier XAI & Finding Shapley
+            <span class="badge-pill">Tree-SHAP</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-milp">
+            <i class="fa-solid fa-wand-magic-sparkles"></i> 4. Discrete MILP & Remediations
+            <span class="badge-pill" id="tabMilpVerified">Closed-Loop</span>
+        </button>
+        <button class="nav-tab-btn" data-tab="tab-compliance">
+            <i class="fa-solid fa-scale-balanced"></i> 5. Compliance & Empirical Proof
+            <span class="badge-pill">HIPAA / FDA</span>
+        </button>
+    </nav>
+
     <!-- Main Container -->
     <main class="main-container">
-        <!-- CI/CD Pipeline Visual Stage Indicator -->
-        <section class="pipeline-tracker-card glass-panel">
-            <div class="pipeline-header">
-                <div class="pipeline-info">
-                    <span class="pulse-dot"></span>
-                    <span class="pipeline-title" id="pipelineServiceName">EHR Patient Record Service (v2.4.1)</span>
-                    <span class="pipeline-badge" id="pipelineRepo">hospital-tech/ehr-patient-service</span>
-                    <span class="commit-tag" id="pipelineCommit"><i class="fa-solid fa-code-commit"></i> a8f3b9c</span>
-                </div>
-                <div class="pipeline-clock" id="pipelineTimestamp">
-                    <i class="fa-regular fa-clock"></i> 2026-09-04 11:50:00 UTC
-                </div>
-            </div>
 
-            <div class="pipeline-stages">
-                <div class="pipeline-stage active" id="stageCommit">
-                    <div class="stage-icon"><i class="fa-solid fa-code-branch"></i></div>
-                    <div class="stage-name">1. Code Commit</div>
-                    <div class="stage-status">Passed</div>
-                </div>
-                <div class="stage-connector"></div>
-                <div class="pipeline-stage active" id="stageScan">
-                    <div class="stage-icon"><i class="fa-solid fa-shield-halved"></i></div>
-                    <div class="stage-name">2. Multi-Scanner Ingestion</div>
-                    <div class="stage-status" id="scannerCount">4 Findings</div>
-                </div>
-                <div class="stage-connector"></div>
-                <div class="pipeline-stage active" id="stageCompliance">
-                    <div class="stage-icon"><i class="fa-solid fa-stethoscope"></i></div>
-                    <div class="stage-name">3. Healthcare Ontology</div>
-                    <div class="stage-status" id="complianceBadge">HIPAA / FDA</div>
-                </div>
-                <div class="stage-connector"></div>
-                <div class="pipeline-stage active" id="stageAI">
-                    <div class="stage-icon"><i class="fa-solid fa-brain"></i></div>
-                    <div class="stage-name">4. XAI Risk Inference</div>
-                    <div class="stage-status">SHAP Evaluated</div>
-                </div>
-                <div class="stage-connector"></div>
-                <div class="pipeline-stage gate-blocked" id="stageGate">
-                    <div class="stage-icon" id="gateIcon"><i class="fa-solid fa-ban"></i></div>
-                    <div class="stage-name">5. Gate Decision</div>
-                    <div class="stage-status" id="gateStageStatus">BLOCKED</div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Risk Metric Grid -->
-        <section class="risk-summary-grid">
-            <!-- Main Gate Decision Banner -->
-            <div class="metric-card gate-decision-card glass-panel" id="gateDecisionContainer">
-                <div class="gate-header">
-                    <span class="gate-label"><i class="fa-solid fa-traffic-light"></i> CI/CD Pipeline Policy Gate</span>
-                    <span class="gate-status-pill blocked" id="gatePill">BLOCKED</span>
-                </div>
-                <div class="gate-body">
-                    <h2 class="gate-headline" id="gateHeadline">Deployment Gating Triggered</h2>
-                    <p class="gate-explanation" id="gateExplanation">
-                        Automated deployment halted: High probability of ePHI breach and severe HIPAA &sect;164.312 non-compliance detected.
-                    </p>
-                </div>
-                <div class="gate-footer">
-                    <div class="gate-action-item">
-                        <i class="fa-solid fa-triangle-exclamation"></i> Action: Remediate 2 Critical Findings to Unblock Gate
+        <!-- ==================================================================
+             TAB 1: OVERVIEW & POLICY GATE
+             ================================================================== -->
+        <section id="tab-overview" class="tab-pane active">
+            <!-- CI/CD Pipeline Visual Stage Indicator -->
+            <div class="pipeline-card">
+                <div class="pipeline-meta-row">
+                    <div class="pipeline-meta-left">
+                        <span class="status-dot"></span>
+                        <b id="pipelineServiceName">EHR Patient Record Service</b>
+                        <span class="repo-badge" id="pipelineRepo">hospital-tech/ehr-patient-service</span>
+                        <span class="font-mono text-muted" id="pipelineCommit"><i class="fa-solid fa-code-commit"></i> a8f3b9c</span>
                     </div>
-                </div>
-            </div>
-
-            <!-- Risk Score Gauge Card -->
-            <div class="metric-card glass-panel">
-                <div class="card-title"><i class="fa-solid fa-gauge-high"></i> AI Risk Score</div>
-                <div class="gauge-display">
-                    <div class="score-circle" id="scoreCircle">
-                        <span class="score-value" id="riskScoreVal">89.4</span>
-                        <span class="score-max">/ 100</span>
-                    </div>
-                    <div class="score-meta">
-                        <div class="score-tier tier-critical" id="riskTierBadge">CRITICAL TIER</div>
-                        <div class="score-confidence">Model Confidence: <b id="modelConfidence">98.2%</b></div>
-                    </div>
-                </div>
-            </div>
-
-            <!-- Breach Probability Card -->
-            <div class="metric-card glass-panel">
-                <div class="card-title"><i class="fa-solid fa-radiation"></i> Patient Data Breach Risk</div>
-                <div class="metric-big-number text-critical" id="breachProbVal">84.2%</div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar bg-critical" id="breachProgressBar" style="width: 84.2%;"></div>
-                </div>
-                <div class="metric-subtext">Estimated statistical likelihood of PHI compromise in production.</div>
-            </div>
-
-            <!-- Compliance Penalty Card -->
-            <div class="metric-card glass-panel">
-                <div class="card-title"><i class="fa-solid fa-notes-medical"></i> Regulatory Impact Penalty</div>
-                <div class="metric-big-number text-warning" id="compliancePenaltyVal">72.0</div>
-                <div class="progress-bar-container">
-                    <div class="progress-bar bg-warning" id="complianceProgressBar" style="width: 72.0%;"></div>
-                </div>
-                <div class="metric-subtext" id="complianceViolationsSummary">3 HIPAA & 2 FDA SaMD Non-Compliances</div>
-            </div>
-        </section>
-
-        <!-- XAI & SHAP Feature Importance Section -->
-        <section class="dashboard-grid-2col">
-            <!-- SHAP Waterfall / Feature Attribution Chart -->
-            <div class="content-card glass-panel">
-                <div class="card-header-bar">
-                    <div class="header-with-badge">
-                        <h3><i class="fa-solid fa-chart-simple"></i> Explainable AI (XAI) Feature Attribution</h3>
-                        <span class="badge-tech">Tree-SHAP Game Theory</span>
-                    </div>
-                    <span class="base-val-text">Base Value \(E[f(x)]\): <b>28.5</b></span>
-                </div>
-                <p class="section-description">
-                    SHAP calculates the precise marginal contribution of each security feature to the final risk score. Red bars drive risk upward; green bars mitigate risk.
-                </p>
-                <div class="chart-container">
-                    <canvas id="shapChart"></canvas>
-                </div>
-                <div class="shap-legend">
-                    <span class="legend-item"><span class="color-box bg-red"></span> Risk Increasing Factor (+SHAP)</span>
-                    <span class="legend-item"><span class="color-box bg-green"></span> Risk Mitigating Factor (-SHAP)</span>
-                </div>
-            </div>
-
-            <!-- Dual-Perspective XAI Narrative -->
-            <div class="content-card glass-panel">
-                <div class="card-header-bar">
-                    <div class="header-with-badge">
-                        <h3><i class="fa-solid fa-comments"></i> XAI Multi-Stakeholder Narratives</h3>
-                    </div>
-                    <div class="narrative-toggle">
-                        <button class="toggle-btn active" id="btnDevView"><i class="fa-solid fa-code"></i> Developer</button>
-                        <button class="toggle-btn" id="btnComplianceView"><i class="fa-solid fa-user-doctor"></i> Compliance Officer</button>
+                    <div class="text-muted font-mono" id="pipelineTimestamp">
+                        <i class="fa-regular fa-clock"></i> 2026-09-24 00:00:00 UTC
                     </div>
                 </div>
 
-                <div class="narrative-content-box" id="developerNarrativeBox">
-                    <div class="narrative-badge dev-badge"><i class="fa-solid fa-terminal"></i> Technical Remediation Brief</div>
-                    <p class="narrative-text" id="devNarrativeText">Loading developer insights...</p>
-                    
-                    <div class="top-factors-list">
-                        <h4>Top Root-Cause Risk Drivers:</h4>
-                        <div id="topDriversList" class="drivers-container">
-                            <!-- Injected by JS -->
+                <div class="pipeline-stages-row">
+                    <div class="stage-node passed" id="stageCommit">
+                        <div class="stage-icon"><i class="fa-solid fa-code-commit"></i></div>
+                        <div class="stage-details">
+                            <span class="stage-title">1. Code Commit</span>
+                            <span class="stage-sub">Git Trigger</span>
+                        </div>
+                    </div>
+                    <span class="stage-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+
+                    <div class="stage-node passed" id="stageScan">
+                        <div class="stage-icon"><i class="fa-solid fa-shield-halved"></i></div>
+                        <div class="stage-details">
+                            <span class="stage-title">2. AST Taint & Ingestion</span>
+                            <span class="stage-sub" id="scannerCount">4 Findings</span>
+                        </div>
+                    </div>
+                    <span class="stage-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+
+                    <div class="stage-node passed" id="stageCompliance">
+                        <div class="stage-icon"><i class="fa-solid fa-scale-balanced"></i></div>
+                        <div class="stage-details">
+                            <span class="stage-title">3. Statutory Mapping</span>
+                            <span class="stage-sub">HIPAA §164.312</span>
+                        </div>
+                    </div>
+                    <span class="stage-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+
+                    <div class="stage-node passed" id="stageAI">
+                        <div class="stage-icon"><i class="fa-solid fa-brain"></i></div>
+                        <div class="stage-details">
+                            <span class="stage-title">4. Monotonic ML & SHAP</span>
+                            <span class="stage-sub">df/dx >= 0 (R²=0.962)</span>
+                        </div>
+                    </div>
+                    <span class="stage-arrow"><i class="fa-solid fa-arrow-right"></i></span>
+
+                    <div class="stage-node blocked" id="stageGate">
+                        <div class="stage-icon" id="gateIcon"><i class="fa-solid fa-ban"></i></div>
+                        <div class="stage-details">
+                            <span class="stage-title">5. Policy Gate</span>
+                            <span class="stage-sub" id="gateStageStatus">BLOCKED</span>
                         </div>
                     </div>
                 </div>
+            </div>
 
-                <div class="narrative-content-box hidden" id="complianceNarrativeBox">
-                    <div class="narrative-badge compliance-badge"><i class="fa-solid fa-scale-balanced"></i> Regulatory Audit Brief</div>
-                    <p class="narrative-text" id="complianceNarrativeText">Loading compliance insights...</p>
-                    
-                    <div class="compliance-highlights">
-                        <h4>Mandatory Statutory Action Items:</h4>
-                        <ul id="complianceActionList" class="compliance-bullets">
+            <!-- Main Policy Gate Decision Banner -->
+            <div class="policy-gate-banner blocked" id="gateDecisionContainer">
+                <div class="gate-text-col">
+                    <div style="display:flex; align-items:center; gap:8px;">
+                        <span class="badge-tag" id="gateStandardBadge">HIPAA §164.312 SECURITY RULE</span>
+                        <span class="font-mono text-muted" id="gateEvalEngine">Engine: Monotonic HistGB + Tree-SHAP</span>
+                    </div>
+                    <h2 class="gate-headline" id="gateHeadline">Deployment Blocked by Automated Policy Gate</h2>
+                    <p class="gate-description" id="gateExplanation">
+                        Automated deployment halted: High risk of unencrypted ePHI persistence and critical database injection detected.
+                    </p>
+                </div>
+                <div>
+                    <span class="gate-badge-pill blocked" id="gatePill">BLOCKED</span>
+                </div>
+            </div>
+
+            <!-- 4 Metric Cards -->
+            <div class="metrics-summary-grid">
+                <div class="metric-box">
+                    <div class="metric-label">
+                        <span>AI Risk Score</span>
+                        <span class="badge-tag" id="riskTierBadge">CRITICAL</span>
+                    </div>
+                    <div class="metric-value-row">
+                        <span class="metric-big-num" id="riskScoreVal">89.4</span>
+                        <span class="metric-sub">/ 100</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-critical" id="riskScoreBar" style="width: 89.4%;"></div>
+                    </div>
+                    <div class="metric-sub">Continuous risk score from Monotonic HistGB</div>
+                </div>
+
+                <div class="metric-box">
+                    <div class="metric-label">
+                        <span>Breach Probability</span>
+                        <i class="fa-solid fa-radiation text-warning"></i>
+                    </div>
+                    <div class="metric-value-row">
+                        <span class="metric-big-num text-critical" id="breachProbVal">84.2%</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-critical" id="breachProgressBar" style="width: 84.2%;"></div>
+                    </div>
+                    <div class="metric-sub">Calibrated on 1,656 federal HHS breach cases</div>
+                </div>
+
+                <div class="metric-box">
+                    <div class="metric-label">
+                        <span>Compliance Penalty</span>
+                        <i class="fa-solid fa-notes-medical text-blue"></i>
+                    </div>
+                    <div class="metric-value-row">
+                        <span class="metric-big-num text-warning" id="compliancePenaltyVal">72.0</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-warning" id="complianceProgressBar" style="width: 72%;"></div>
+                    </div>
+                    <div class="metric-sub" id="complianceViolationsSummary">3 HIPAA & 2 FDA Violations</div>
+                </div>
+
+                <div class="metric-box">
+                    <div class="metric-label">
+                        <span>Model Verification</span>
+                        <span class="badge-tag badge-tag-green">VERIFIED</span>
+                    </div>
+                    <div class="metric-value-row">
+                        <span class="metric-big-num text-blue" id="modelCvR2Val">0.962</span>
+                        <span class="metric-sub">5-Fold R²</span>
+                    </div>
+                    <div class="progress-track">
+                        <div class="progress-fill fill-blue" style="width: 96.2%;"></div>
+                    </div>
+                    <div class="metric-sub">Monotonic constraints strictly enforced</div>
+                </div>
+            </div>
+
+            <!-- Two-Column: Top Drivers & Multi-Stakeholder Narratives -->
+            <div class="grid-2col">
+                <!-- Top Drivers -->
+                <div class="panel">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <span class="card-title"><i class="fa-solid fa-triangle-exclamation text-critical"></i> Top Root-Cause Risk Drivers</span>
+                            <span class="badge-tag">Tree-SHAP Attributions</span>
+                        </div>
+                    </div>
+                    <div id="topDriversList">
+                        <!-- Injected by JS -->
+                    </div>
+                </div>
+
+                <!-- Multi-Stakeholder Narratives -->
+                <div class="panel">
+                    <div class="card-header-bar">
+                        <div class="card-title-group">
+                            <span class="card-title"><i class="fa-solid fa-comment-dots text-blue"></i> Multi-Stakeholder Assessment</span>
+                        </div>
+                        <div class="narrative-tabs">
+                            <button class="narrative-toggle-btn active" id="btnDevView"><i class="fa-solid fa-code"></i> Developer Brief</button>
+                            <button class="narrative-toggle-btn" id="btnComplianceView"><i class="fa-solid fa-scale-balanced"></i> Auditor Brief</button>
+                        </div>
+                    </div>
+                    <div id="developerNarrativeBox">
+                        <p class="narrative-body-text" id="devNarrativeText">Loading developer technical summary...</p>
+                    </div>
+                    <div id="complianceNarrativeBox" style="display: none;">
+                        <p class="narrative-body-text" id="complianceNarrativeText">Loading regulatory compliance summary...</p>
+                        <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px; color: var(--text-primary);">Mandatory Statutory Action Items:</div>
+                        <ul id="complianceActionList" style="padding-left: 18px; font-size: 12px; color: var(--text-secondary); line-height: 1.6;">
                             <!-- Injected by JS -->
                         </ul>
                     </div>
@@ -223,415 +265,494 @@
             </div>
         </section>
 
-        <!-- Interactive Counterfactual "What-If" Simulation Lab -->
-        <section class="content-card glass-panel what-if-section">
-            <div class="card-header-bar">
-                <div class="header-with-badge">
-                    <h3><i class="fa-solid fa-wand-magic-sparkles"></i> Counterfactual "What-If" Remediation Simulator</h3>
-                    <span class="badge-tech">Interactive XAI</span>
+        <!-- ==================================================================
+             TAB 2: AST TAINT & DATAFLOW
+             ================================================================== -->
+        <section id="tab-ast" class="tab-pane">
+            <!-- Visual Dataflow Tracing Pipeline -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-sitemap text-blue"></i> AST Semantic Taint-Flow Architecture</span>
+                        <span class="badge-tag badge-tag-blue">Python ast.NodeVisitor</span>
+                    </div>
+                    <span class="font-mono text-muted" style="font-size: 11px;">Safe Harbor 18 Ontology + Variable Aliasing + Strict Sanitizers</span>
                 </div>
-                <button id="btnResetSimulation" class="btn btn-sm btn-outline"><i class="fa-solid fa-rotate-left"></i> Reset to Scan Values</button>
-            </div>
-            <p class="section-description">
-                Simulate potential fixes in real time. Adjust the security controls below to see how the AI model recalculates the risk score and dynamically clears the CI/CD pipeline gate!
-            </p>
 
-            <div class="what-if-grid">
-                <div class="sliders-panel">
-                    <div class="slider-control">
-                        <div class="slider-label-row">
-                            <span><i class="fa-solid fa-bug"></i> Critical SAST Flaws (SQLi/RCE)</span>
-                            <span class="slider-val" id="val_sast_critical">0</span>
-                        </div>
-                        <input type="range" id="slider_sast_critical" min="0" max="5" step="1" value="0">
+                <div class="ast-flow-box">
+                    <div class="ast-node-step source">
+                        <span class="step-label">1. ePHI Source</span>
+                        <span class="step-content">ssn, mrn, vitals</span>
+                        <span class="font-mono text-muted" style="font-size: 10px;">FunctionDef / AsyncDef</span>
                     </div>
+                    <span class="step-arrow"><i class="fa-solid fa-arrow-right"></i></span>
 
-                    <div class="slider-control">
-                        <div class="slider-label-row">
-                            <span><i class="fa-solid fa-lock"></i> Unencrypted PHI Flows (At Rest / Transit)</span>
-                            <span class="slider-val" id="val_unencrypted_data_flows">0</span>
-                        </div>
-                        <input type="range" id="slider_unencrypted_data_flows" min="0" max="4" step="1" value="0">
+                    <div class="ast-node-step alias">
+                        <span class="step-label">2. Aliasing & Propagation</span>
+                        <span class="step-content">alias_var = ssn</span>
+                        <span class="font-mono text-muted" style="font-size: 10px;">ast.Assign / Dict / Str</span>
                     </div>
+                    <span class="step-arrow"><i class="fa-solid fa-arrow-right"></i></span>
 
-                    <div class="slider-control">
-                        <div class="slider-label-row">
-                            <span><i class="fa-solid fa-user-secret"></i> ePHI Exposure / Leak Risk Score</span>
-                            <span class="slider-val" id="val_phi_leak_risk_score">0</span>
-                        </div>
-                        <input type="range" id="slider_phi_leak_risk_score" min="0" max="100" step="5" value="0">
+                    <div class="ast-node-step sanitizer">
+                        <span class="step-label">3. Strict Sanitizer Check</span>
+                        <span class="step-content">AESGCM(arg) / KMS</span>
+                        <span class="font-mono text-muted" style="font-size: 10px;">Arg validation / Key check</span>
                     </div>
+                    <span class="step-arrow"><i class="fa-solid fa-arrow-right"></i></span>
 
-                    <div class="slider-control">
-                        <div class="slider-label-row">
-                            <span><i class="fa-solid fa-boxes-stacked"></i> Dependency Max CVSS Score</span>
-                            <span class="slider-val" id="val_sca_max_cvss">0.0</span>
-                        </div>
-                        <input type="range" id="slider_sca_max_cvss" min="0" max="10" step="0.1" value="0">
+                    <div class="ast-node-step sink">
+                        <span class="step-label">4. Insecure Clinical Sink</span>
+                        <span class="step-content">insert_one / SQLi / Log</span>
+                        <span class="font-mono text-muted" style="font-size: 10px;">HIPAA §164.312 Violation</span>
                     </div>
                 </div>
 
-                <div class="simulation-outcome-panel">
-                    <div class="outcome-box">
-                        <div class="outcome-label">Simulated Recalculated Risk</div>
-                        <div class="outcome-score-row">
-                            <span class="outcome-score" id="simulatedRiskScore">89.4</span>
-                            <span class="outcome-delta" id="simulatedRiskDelta">0.0 pts</span>
-                        </div>
-                        <div class="outcome-gate-badge" id="simulatedGateBadge">BLOCKED</div>
-                        <p class="outcome-tip" id="simulatedOutcomeTip">
-                            Adjust controls to reach Low risk tier (&lt; 20.0) for automated production deployment.
-                        </p>
-                    </div>
-
-                    <div class="quick-counterfactual-presets">
-                        <div class="preset-title">Instant Recommended Counterfactuals:</div>
-                        <div id="counterfactualCardsContainer" class="cf-cards-row">
-                            <!-- Injected by JS -->
-                        </div>
-                    </div>
-                </div>
-            </div>
-        </section>
-
-        <!-- Healthcare Regulatory Compliance Matrix -->
-        <section class="content-card glass-panel">
-            <div class="card-header-bar">
-                <div class="header-with-badge">
-                    <h3><i class="fa-solid fa-book-medical"></i> Healthcare Statutory Compliance Matrix</h3>
-                    <span class="badge-tech">HIPAA &bull; FDA SaMD ? HL7 FHIR</span>
-                </div>
-                <div class="compliance-stats-chips">
-                    <span class="chip chip-danger" id="hipaaRiskChip">HIPAA Risk: 65.0</span>
-                    <span class="chip chip-warning" id="fdaRiskChip">FDA Risk: 50.0</span>
-                    <span class="chip chip-info" id="fhirRiskChip">FHIR Risk: 45.0</span>
-                </div>
-            </div>
-
-            <div class="table-responsive">
-                <table class="compliance-table">
-                    <thead>
-                        <tr>
-                            <th>Standard</th>
-                            <th>Section / Control</th>
-                            <th>Regulatory Requirement</th>
-                            <th>Detected Infraction</th>
-                            <th>Severity</th>
-                            <th>Remediation Target</th>
-                        </tr>
-                    </thead>
-                    <tbody id="complianceTableBody">
+                <!-- Discovered Findings List -->
+                <div style="margin-top: 16px;">
+                    <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px;">Discovered Security Findings in Current Scenario:</div>
+                    <div id="astFindingsList">
                         <!-- Injected by JS -->
-                    </tbody>
-                </table>
-            </div>
-        </section>
-
-        <!-- Automated AI Code Remediation & Patch Diffs -->
-        <section class="content-card glass-panel">
-            <div class="card-header-bar">
-                <div class="header-with-badge">
-                    <h3><i class="fa-solid fa-code-compare"></i> Automated Code Remediation & Unified Patches</h3>
-                    <span class="badge-tech">AWS KMS & Secrets Manager Ready</span>
-                </div>
-            </div>
-            <p class="section-description">
-                Side-by-side automated code refactoring patches generated to satisfy HIPAA &sect;164.312 encryption requirements and FDA SaMD cryptographic standards.
-            </p>
-
-            <div id="remediationTabsContainer" class="remediation-container">
-                <!-- Injected by JS -->
-            </div>
-        </section>
-
-        <!-- Live Custom Code & Scanner Playground -->
-        <section class="content-card glass-panel">
-            <div class="card-header-bar">
-                <div class="header-with-badge">
-                    <h3><i class="fa-solid fa-code"></i> Live Clinical Code Scanner & Vulnerability Tester</h3>
-                    <span class="badge-tech">Custom Code Ingestion</span>
-                </div>
-                <button id="btnScanCustomCode" class="btn btn-primary btn-sm">
-                    <i class="fa-solid fa-magnifying-glass"></i> Analyze Custom Code
-                </button>
-            </div>
-            <div class="custom-scanner-grid">
-                <div class="editor-pane">
-                    <div class="editor-header">
-                        <span><i class="fa-brands fa-python"></i> patient_service.py</span>
-                        <span class="editor-hint">Paste Python, API handlers, or Dockerfile below</span>
                     </div>
-                    <textarea id="customCodeInput" class="code-textarea" spellcheck="false"># Insecure Healthcare Microservice Sample
+                </div>
+            </div>
+
+            <!-- Live Custom Code Scanner Playground -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-terminal text-blue"></i> Live Clinical Code Scanner & AST Tester</span>
+                        <span class="badge-tag">Custom Ingestion</span>
+                    </div>
+                    <button id="btnScanCustomCode" class="btn btn-primary btn-sm">
+                        <i class="fa-solid fa-magnifying-glass"></i> Analyze Code with AST
+                    </button>
+                </div>
+
+                <div class="grid-2col">
+                    <div>
+                        <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 6px;">
+                            <i class="fa-brands fa-python"></i> Target Source Code (`clinical_service.py`):
+                        </div>
+                        <textarea id="customCodeInput" style="width: 100%; height: 220px; background: var(--bg-base); color: var(--text-primary); border: 1px solid var(--border-subtle); border-radius: 6px; padding: 12px; font-family: var(--font-mono); font-size: 12px; line-height: 1.5; outline: none; resize: vertical;" spellcheck="false"># Insecure Healthcare Microservice Sample
 import psycopg2, boto3
 
 DB_USER = "clinical_admin"
 DB_PASS = "AdminSecret2026!#"
-AWS_SECRET_KEY = "AKIAIOSFODNN7EXAMPLE"
 
 def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
-    # Vulnerability 1: Plaintext ePHI storage
-    query = f"INSERT INTO clinical_vitals VALUES ('{patient_id}', '{ssn}', '{mrn}', {heart_rate}, '{bp}')"
+    # Variable aliasing test: taint propagates to alias
+    alias_record = ssn
+    
+    # Vulnerability 1: Plaintext ePHI storage sink
+    query = f"INSERT INTO clinical_vitals VALUES ('{patient_id}', '{alias_record}', '{mrn}', {heart_rate})"
     db.execute(query)
     
     # Vulnerability 2: Plaintext logging of SSN
     print(f"Recorded vitals for SSN: {ssn}, MRN: {mrn}")
     return True
 </textarea>
-                </div>
-                <div class="preview-pane">
-                    <div class="preview-header"><i class="fa-solid fa-list-check"></i> Live Scanner Rules</div>
-                    <div class="scanner-rules-list">
-                        <div class="rule-item"><i class="fa-solid fa-check text-green"></i> HIPAA &sect;164.312(a)(1) Plaintext ePHI Storage Scanner</div>
-                        <div class="rule-item"><i class="fa-solid fa-check text-green"></i> Hardcoded AWS & Clinical DB Credential Detector</div>
-                        <div class="rule-item"><i class="fa-solid fa-check text-green"></i> EHR SQL Injection & Parameterization Verifier</div>
-                        <div class="rule-item"><i class="fa-solid fa-check text-green"></i> SMART-on-FHIR OAuth Scope Boundary Analyzer</div>
-                        <div class="rule-item"><i class="fa-solid fa-check text-green"></i> HIPAA Safe Harbor 18-Identifier Masking Verifier</div>
+                    </div>
+
+                    <div>
+                        <div style="font-size: 11px; font-family: var(--font-mono); color: var(--text-muted); margin-bottom: 6px;">
+                            <i class="fa-solid fa-list-check"></i> Active AST Static Rules & Capabilities:
+                        </div>
+                        <div style="display: flex; flex-direction: column; gap: 8px;">
+                            <div class="panel" style="padding: 10px; font-size: 12px;">
+                                <b class="text-blue">HIPAA Safe Harbor 18 Identifier Detection</b>
+                                <div class="text-muted" style="font-size: 11px;">Scans for MRN, SSN, DOB, vitals, patient_id, and FHIR resource schemas.</div>
+                            </div>
+                            <div class="panel" style="padding: 10px; font-size: 12px;">
+                                <b class="text-blue">Variable Alias Taint Propagation</b>
+                                <div class="text-muted" style="font-size: 11px;">Tracks taint across variable assignment chains (`alias = ssn`).</div>
+                            </div>
+                            <div class="panel" style="padding: 10px; font-size: 12px;">
+                                <b class="text-blue">Async Route & FHIR Scope Boundary Inspection</b>
+                                <div class="text-muted" style="font-size: 11px;">Inspects `visit_AsyncFunctionDef` for wildcard scopes (`*.*`) on FastAPI/FHIR.</div>
+                            </div>
+                            <div class="panel" style="padding: 10px; font-size: 12px;">
+                                <b class="text-blue">Strict Cryptographic Sanitizer Verification</b>
+                                <div class="text-muted" style="font-size: 11px;">Checks that tainted data is passed as input to AES-GCM/KMS; rejects dummy sanitizers.</div>
+                            </div>
+                        </div>
                     </div>
                 </div>
             </div>
         </section>
-    </main>
 
-    <!-- AWS Architecture Modal -->
-    <div id="awsModal" class="modal-backdrop hidden">
-        <div class="modal-content glass-panel">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fa-brands fa-aws aws-icon"></i> AWS Production Architecture & Integration Blueprint
+        <!-- ==================================================================
+             TAB 3: TWO-TIER XAI & FINDING SHAPLEY
+             ================================================================== -->
+        <section id="tab-xai" class="tab-pane">
+            <!-- Tier 1: 10-Feature Tree-SHAP Chart -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-chart-simple text-blue"></i> Tier 1: 10-Dimensional Tree-SHAP Feature Attribution</span>
+                        <span class="badge-tag">Lundberg et al. (Nature MI 2020)</span>
+                    </div>
+                    <span class="font-mono text-muted" style="font-size: 11px;" id="baseExpectedValText">Base Expected Value E[f]: 28.5 pts</span>
                 </div>
-                <button id="btnCloseModal" onclick="closeAwsModal()" class="modal-close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <div class="aws-arch-grid">
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-diagram-project"></i> 1. CI/CD Orchestration</div>
-                        <p><b>AWS CodePipeline & CodeBuild</b>: Triggers automated multi-scanners (Semgrep, Trivy, ZAP) on Git pull requests inside isolated VPC build containers.</p>
-                    </div>
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-brain"></i> 2. AI & XAI Inference</div>
-                        <p><b>Amazon SageMaker</b>: Hosts the trained Ensemble Risk Assessment model & SHAP explainer endpoint with &lt;200ms latency for pipeline gating.</p>
-                    </div>
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-network-wired"></i> 3. Compliance Knowledge Graph</div>
-                        <p><b>Amazon Neptune</b>: Graph database mapping code vulnerability patterns to HIPAA Safeguards, FDA 510(k), and HL7 FHIR security specifications.</p>
-                    </div>
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-shield-cat"></i> 4. Security & Posture</div>
-                        <p><b>AWS Security Hub & GuardDuty</b>: Ingests container, IaC, and runtime telemetry findings into a centralized DevSecOps lake.</p>
-                    </div>
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-key"></i> 5. Cryptographic Protection</div>
-                        <p><b>AWS KMS & Secrets Manager</b>: FIPS 140-2 validated envelope encryption (AES-256) for all ePHI records and automated secret rotation.</p>
-                    </div>
-                    <div class="aws-card">
-                        <div class="aws-card-title"><i class="fa-solid fa-database"></i> 6. Healthcare Data Store</div>
-                        <p><b>AWS HealthLake</b>: HIPAA-eligible FHIR datastore for clinical health records with automated SMART-on-FHIR authorization policies.</p>
-                    </div>
-                </div>
-                <div class="aws-diagram-ascii">
-??????????????????????????????????????????????????????????????????????????????????????????
-?                        AWS HEALTHCARE DEVSECOPS PIPELINE                               ?
-?                                                                                        ?
-?   Developer Push ??? AWS CodePipeline ??? AWS CodeBuild (Trivy / Semgrep / SCA)       ?
-?                                                   ?                                    ?
-?                                                   ?                                    ?
-?   AWS Security Hub ????????????????? Amazon SageMaker (Ensemble ML Risk + Tree-SHAP)   ?
-?                                                   ?                                    ?
-?                                                   ?                                    ?
-?   Amazon Neptune ??????????????????? HIPAA & FDA Compliance Engine                     ?
-?   (Regulatory Knowledge Graph)                    ?                                    ?
-?                                                   ?                                    ?
-?                              Gate Decision (BLOCK / APPROVE) ??? AWS HealthLake / EKS   ?
-??????????????????????????????????????????????????????????????????????????????????????????
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 12px;">
+                    Tree-SHAP calculates exact marginal contributions satisfying the Local Efficiency axiom: <code>f(x) = E[f] + &Sigma;&phi;<sub>i</sub></code> (residual error &lt; 10<sup>-14</sup>).
+                </p>
+                <div style="height: 240px; position: relative;">
+                    <canvas id="shapChart"></canvas>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button id="btnModalCloseOk" onclick="closeAwsModal()" class="btn btn-primary">Close Blueprint</button>
-            </div>
-        </div>
-    </div>
 
-    <!-- Datasets & Training Data Modal -->
-    <div id="datasetsModal" class="modal-backdrop hidden">
-        <div class="modal-content glass-panel" style="max-width: 950px;">
-            <div class="modal-header">
-                <div class="modal-title">
-                    <i class="fa-solid fa-database" style="color: #34d399;"></i> Physical Datasets & Empirical Training Matrix
+            <!-- Tier 2: Finding-Level Cooperative Game Attribution Table -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-scale-balanced text-blue"></i> Tier 2: Finding-Level Cooperative Game Blame Attribution (&Phi;<sub>j</sub>)</span>
+                        <span class="badge-tag badge-tag-blue">Exact 2<sup>K</sup> Coalition Enumeration</span>
+                    </div>
+                    <span class="font-mono text-blue" style="font-size: 12px;" id="totalExcessRiskVal">Total Excess Finding Risk: +63.9 pts</span>
                 </div>
-                <button id="btnCloseDatasetsModal" onclick="closeDatasetsModal()" class="modal-close-btn">&times;</button>
-            </div>
-            <div class="modal-body">
-                <p style="font-size: 13px; color: #94a3b8; margin-bottom: 16px;">
-                    Below are the physical healthcare security datasets downloaded from official sources (U.S. HHS OCR, NIST NVD, MITRE CVE Project) located in <code>c:\cloud project\datasets\</code>, used to train the Machine Learning ensemble model and calibrate the XAI feature weights.
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+                    Treats each detected vulnerability as an individual player in a cooperative game. Evaluates coalition characteristic function <code>v(S)</code> to determine exact statutory blame: <code>&Sigma;&Phi;<sub>j</sub> = v(All) - v(Empty)</code>.
                 </p>
 
-                <!-- Statistics Banner -->
-                <div style="display: grid; grid-template-columns: repeat(4, 1fr); gap: 12px; margin-bottom: 20px;">
-                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
-                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Real Hospital Breaches</div>
-                        <div id="modalHhsTotal" style="font-size: 24px; font-weight: 800; color: #38bdf8;">1,656</div>
-                        <div style="font-size: 10px; color: #64748b;">HHS.gov OCR Portal</div>
-                    </div>
-                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
-                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Unencrypted ePHI Rate</div>
-                        <div id="modalUnencRate" style="font-size: 24px; font-weight: 800; color: #ef4444;">44.7%</div>
-                        <div style="font-size: 10px; color: #64748b;">Primary Breach Cause</div>
-                    </div>
-                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
-                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">NIST NVD Healthcare CVEs</div>
-                        <div style="font-size: 24px; font-weight: 800; color: #f59e0b;">CVSS 8.8+</div>
-                        <div style="font-size: 10px; color: #64748b;">NVD API 2.0 Feed</div>
-                    </div>
-                    <div style="background: rgba(30, 41, 59, 0.6); padding: 14px; border-radius: 8px; border: 1px solid rgba(255,255,255,0.08); text-align: center;">
-                        <div style="font-size: 11px; color: #94a3b8; text-transform: uppercase;">Training Matrix Runs</div>
-                        <div style="font-size: 24px; font-weight: 800; color: #10b981;">2,500</div>
-                        <div style="font-size: 10px; color: #64748b;">10-D Feature Vector</div>
-                    </div>
-                </div>
-
-                <!-- Datasets Table -->
-                <div style="font-size: 13px; font-weight: 700; margin-bottom: 8px; color: #e2e8f0;">
-                    <i class="fa-solid fa-folder-open text-cyan"></i> Downloaded Physical Dataset Files:
-                </div>
-                <div class="table-responsive" style="margin-bottom: 20px;">
-                    <table class="compliance-table">
+                <div class="table-container">
+                    <table class="minimal-table">
                         <thead>
                             <tr>
-                                <th>File Name</th>
-                                <th>Size</th>
-                                <th>Source / Authority</th>
-                                <th>Role in Application</th>
+                                <th>Finding ID</th>
+                                <th>Type / Vulnerability</th>
+                                <th>Severity</th>
+                                <th>Statutory Legal Clause</th>
+                                <th style="text-align: right;">Shapley Blame (&Phi;<sub>j</sub>)</th>
+                                <th style="text-align: right;">Risk Impact %</th>
                             </tr>
                         </thead>
-                        <tbody id="datasetsTableBody">
-                            <tr>
-                                <td><b>hhs_major_data_breaches.csv</b></td>
-                                <td>804.9 KB</td>
-                                <td>U.S. HHS Office for Civil Rights</td>
-                                <td>1,656 hospital breach records establishing empirical root-cause weights</td>
-                            </tr>
-                            <tr>
-                                <td><b>hhs_cyber_security_breaches.csv</b></td>
-                                <td>304.1 KB</td>
-                                <td>Rdatasets / Cyber Incident Mirror</td>
-                                <td>Historical incident trends across healthcare covered entities</td>
-                            </tr>
-                            <tr>
-                                <td><b>nist_nvd_healthcare_cves.json</b></td>
-                                <td>51.5 KB</td>
-                                <td>NIST National Vulnerability Database</td>
-                                <td>Live CVSS v3.1 base score feeds for medical software vulnerabilities</td>
-                            </tr>
-                            <tr>
-                                <td><b>cve_2023_4863_libwebp_samd.json</b></td>
-                                <td>23.3 KB</td>
-                                <td>MITRE CVE Project v5</td>
-                                <td>Vulnerability specification for SaMD DICOM image parser scenario</td>
-                            </tr>
-                            <tr>
-                                <td><b>healthcare_devsecops_cicd_benchmark_dataset.csv</b></td>
-                                <td>133.1 KB</td>
-                                <td>Compiled CI/CD Benchmark Matrix</td>
-                                <td>2,500 training build runs consumed by <code>ml_engine.py</code></td>
-                            </tr>
+                        <tbody id="findingShapleyTableBody">
+                            <!-- Injected by JS -->
                         </tbody>
                     </table>
                 </div>
 
-                <div style="background: rgba(16, 185, 129, 0.1); border: 1px solid rgba(16, 185, 129, 0.3); padding: 12px 16px; border-radius: 8px; font-size: 12px; color: #6ee7b7;">
-                    <i class="fa-solid fa-circle-check"></i> <b>Verification Note for Evaluators:</b> The Random Forest and Gradient Boosting models train directly from <code>datasets/healthcare_devsecops_cicd_benchmark_dataset.csv</code> at server startup.
+                <!-- Statutory Clause Aggregation -->
+                <div style="margin-top: 20px;">
+                    <div style="font-size: 13px; font-weight: 700; margin-bottom: 10px;">Aggregated Regulatory Legal Clause Attribution:</div>
+                    <div id="clauseAttributionContainer" style="display: grid; grid-template-columns: repeat(3, 1fr); gap: 12px;">
+                        <!-- Injected by JS -->
+                    </div>
                 </div>
             </div>
-            <div class="modal-footer">
-                <button id="btnModalCloseDatasetsOk" onclick="closeDatasetsModal()" class="btn btn-primary">Close Datasets Viewer</button>
+        </section>
+
+        <!-- ==================================================================
+             TAB 4: DISCRETE MILP & REMEDIATIONS
+             ================================================================== -->
+        <section id="tab-milp" class="tab-pane">
+            <!-- Discrete MILP Solver & Closed-Loop Verification Card -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-calculator text-blue"></i> Discrete Mixed-Integer Linear Program (MILP) Remediation Optimizer</span>
+                        <span class="badge-tag">scipy.optimize.milp (0-1 ILP)</span>
+                    </div>
+                    <span class="badge-tag badge-tag-green" id="closedLoopBadge"><i class="fa-solid fa-circle-check"></i> Closed-Loop AST Re-Scan Verified</span>
+                </div>
+                <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
+                    Solves <code>min &Sigma; (c<sub>j</sub> &middot; z<sub>j</sub>)</code> subject to <code>&Sigma; (&Phi;<sub>j</sub> &middot; z<sub>j</sub>) &ge; &Delta;<sub>risk</sub></code> with mandatory HIPAA zero-tolerance hard bounds (<code>z<sub>j</sub> = 1</code>). Validated by closed-loop code patch simulation and automated AST re-scan.
+                </p>
+
+                <div id="milpPlanDetailsBox">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+
+            <!-- Interactive Counterfactual What-If Simulator -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-sliders text-blue"></i> Interactive What-If Counterfactual Lab</span>
+                        <span class="badge-tag">Dynamic Re-Inference</span>
+                    </div>
+                    <button id="btnResetSimulation" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate-left"></i> Reset Sliders</button>
+                </div>
+
+                <div class="grid-2col">
+                    <div class="slider-group">
+                        <div class="slider-row">
+                            <div class="slider-label-bar">
+                                <span><i class="fa-solid fa-bug text-critical"></i> Critical SAST Flaws (SQLi/RCE)</span>
+                                <span class="slider-val-badge" id="val_sast_critical">0</span>
+                            </div>
+                            <input type="range" id="slider_sast_critical" min="0" max="5" step="1" value="0">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-label-bar">
+                                <span><i class="fa-solid fa-lock text-critical"></i> Unencrypted PHI Flows</span>
+                                <span class="slider-val-badge" id="val_unencrypted_data_flows">0</span>
+                            </div>
+                            <input type="range" id="slider_unencrypted_data_flows" min="0" max="4" step="1" value="0">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-label-bar">
+                                <span><i class="fa-solid fa-shield-virus text-warning"></i> ePHI Exposure / Leak Score</span>
+                                <span class="slider-val-badge" id="val_phi_leak_risk_score">0</span>
+                            </div>
+                            <input type="range" id="slider_phi_leak_risk_score" min="0" max="100" step="5" value="0">
+                        </div>
+
+                        <div class="slider-row">
+                            <div class="slider-label-bar">
+                                <span><i class="fa-solid fa-box text-blue"></i> Dependency Max CVSS Score</span>
+                                <span class="slider-val-badge" id="val_sca_max_cvss">0.0</span>
+                            </div>
+                            <input type="range" id="slider_sca_max_cvss" min="0" max="10" step="0.1" value="0">
+                        </div>
+                    </div>
+
+                    <div class="panel" style="background: var(--bg-base); display: flex; flex-direction: column; justify-content: center; gap: 8px;">
+                        <span style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Simulated Recalculated Risk Score</span>
+                        <div style="display: flex; align-items: baseline; gap: 10px;">
+                            <span style="font-size: 36px; font-weight: 800; font-family: var(--font-mono);" id="simulatedRiskScore">89.4</span>
+                            <span style="font-size: 13px; font-family: var(--font-mono);" id="simulatedRiskDelta">0.0 pts</span>
+                        </div>
+                        <div style="display: flex; align-items: center; gap: 10px;">
+                            <span class="gate-badge-pill blocked" id="simulatedGateBadge">BLOCKED</span>
+                            <span style="font-size: 12px; color: var(--text-secondary);" id="simulatedOutcomeTip">Adjust controls to reach Low risk tier (&lt; 24.0) to auto-deploy.</span>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Cryptographic Code Remediation Diffs -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-code-compare text-blue"></i> Verified Cryptographic Code Remediations</span>
+                        <span class="badge-tag">AWS KMS & Secrets Manager Ready</span>
+                    </div>
+                </div>
+                <div id="remediationTabsContainer">
+                    <!-- Injected by JS -->
+                </div>
+            </div>
+        </section>
+
+        <!-- ==================================================================
+             TAB 5: COMPLIANCE & EMPIRICAL EVIDENCE
+             ================================================================== -->
+        <section id="tab-compliance" class="tab-pane">
+            <!-- Empirical Benchmark Performance Table -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-trophy text-blue"></i> Empirical Benchmark Evaluation on Clinical Test Cases</span>
+                        <span class="badge-tag badge-tag-green">AegisMed vs Industry Baselines</span>
+                    </div>
+                    <span class="font-mono text-muted" style="font-size: 11px;">Measured on benchmark_comparison.py</span>
+                </div>
+                <div class="table-container">
+                    <table class="minimal-table">
+                        <thead>
+                            <tr>
+                                <th>Analysis Engine</th>
+                                <th style="text-align: center;">Precision</th>
+                                <th style="text-align: center;">Recall</th>
+                                <th style="text-align: center;">F1 Score</th>
+                                <th style="text-align: center;">False Positives</th>
+                                <th style="text-align: center;">False Negatives</th>
+                                <th style="text-align: center;">Latency</th>
+                            </tr>
+                        </thead>
+                        <tbody>
+                            <tr>
+                                <td>Generic Regex / Keyword Matching</td>
+                                <td style="text-align: center;" class="font-mono">0.800</td>
+                                <td style="text-align: center;" class="font-mono">0.667</td>
+                                <td style="text-align: center;" class="font-mono text-warning">0.727</td>
+                                <td style="text-align: center;" class="font-mono">1</td>
+                                <td style="text-align: center;" class="font-mono text-critical">2</td>
+                                <td style="text-align: center;" class="font-mono">0.4 ms</td>
+                            </tr>
+                            <tr>
+                                <td>Generic AST Rule Checker (Bandit/Semgrep-style)</td>
+                                <td style="text-align: center;" class="font-mono">0.750</td>
+                                <td style="text-align: center;" class="font-mono">0.500</td>
+                                <td style="text-align: center;" class="font-mono text-warning">0.600</td>
+                                <td style="text-align: center;" class="font-mono">1</td>
+                                <td style="text-align: center;" class="font-mono text-critical">3</td>
+                                <td style="text-align: center;" class="font-mono">0.5 ms</td>
+                            </tr>
+                            <tr style="background: var(--bg-surface-subtle); border-left: 3px solid var(--status-success);">
+                                <td><b>AegisMed AST Taint-Flow Analyzer (Invention)</b></td>
+                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono text-success"><b>0</b></td>
+                                <td style="text-align: center;" class="font-mono text-success"><b>0</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>0.5 ms</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <!-- Empirical Grounding from 1,656 Federal Breaches -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-server text-blue"></i> Empirical Grounding: U.S. HHS OCR Hospital Breach Corpus</span>
+                        <span class="badge-tag">1,656 Physical Incidents</span>
+                    </div>
+                </div>
+                <div class="metrics-summary-grid" style="margin-bottom: 14px;">
+                    <div class="metric-box">
+                        <span class="metric-label">Theft of Unencrypted Data</span>
+                        <span class="metric-big-num text-critical">46.6%</span>
+                        <span class="metric-sub">Primary hospital breach cause</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">Unauthorized Disclosure</span>
+                        <span class="metric-big-num text-warning">26.0%</span>
+                        <span class="metric-sub">Unmasked logging & access leaks</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">Hacking / IT Incidents</span>
+                        <span class="metric-big-num text-blue">13.2%</span>
+                        <span class="metric-sub">SQLi, RCE, credential compromise</span>
+                    </div>
+                    <div class="metric-box">
+                        <span class="metric-label">CISA KEV Multiplier</span>
+                        <span class="metric-big-num text-success">1.15x</span>
+                        <span class="metric-sub">Active exploit factor on CVEs</span>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Healthcare Statutory Compliance Matrix -->
+            <div class="panel">
+                <div class="card-header-bar">
+                    <div class="card-title-group">
+                        <span class="card-title"><i class="fa-solid fa-book-medical text-blue"></i> Healthcare Statutory Compliance Matrix</span>
+                        <span class="badge-tag">HIPAA 45 CFR §164.312 &bull; FDA SaMD 524B &bull; HL7 FHIR</span>
+                    </div>
+                </div>
+                <div class="table-container">
+                    <table class="minimal-table">
+                        <thead>
+                            <tr>
+                                <th>Standard</th>
+                                <th>Control ID</th>
+                                <th>Statutory Legal Requirement</th>
+                                <th>Detected Infraction</th>
+                                <th>Severity</th>
+                                <th>Source Location</th>
+                            </tr>
+                        </thead>
+                        <tbody id="complianceTableBody">
+                            <!-- Injected by JS -->
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </section>
+
+    </main>
+
+    <!-- Datasets Modal -->
+    <div id="datasetsModal" class="modal-backdrop hidden">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h3><i class="fa-solid fa-database text-blue"></i> Physical Datasets & Empirical Training Matrix</h3>
+                <button class="modal-close-btn" id="btnCloseDatasetsModal">&times;</button>
+            </div>
+            <div class="modal-content-area">
+                <p style="color: var(--text-secondary); margin-bottom: 14px;">
+                    The machine learning models and latent risk distributions are trained directly on physical datasets in <code>datasets/</code>:
+                </p>
+                <table class="minimal-table">
+                    <thead>
+                        <tr>
+                            <th>File Name</th>
+                            <th>Records</th>
+                            <th>Authority</th>
+                            <th>Architectural Role</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td><b>hhs_major_data_breaches.csv</b></td>
+                            <td class="font-mono">1,656</td>
+                            <td>U.S. HHS OCR Portal</td>
+                            <td>Empirical hospital breach records establishing root-cause priors</td>
+                        </tr>
+                        <tr>
+                            <td><b>hhs_cyber_security_breaches.csv</b></td>
+                            <td class="font-mono">~500</td>
+                            <td>Cyber Incident Mirror</td>
+                            <td>Longitudinal incident trends across covered entities</td>
+                        </tr>
+                        <tr>
+                            <td><b>nist_nvd_healthcare_cves.json</b></td>
+                            <td class="font-mono">50+ CVEs</td>
+                            <td>NIST NVD API 2.0</td>
+                            <td>Real-world medical device software CVEs with CVSS metrics</td>
+                        </tr>
+                        <tr>
+                            <td><b>cve_2023_4863_libwebp_samd.json</b></td>
+                            <td class="font-mono">1 CVE Spec</td>
+                            <td>MITRE CVE Project v5</td>
+                            <td>FDA SaMD DICOM medical imaging buffer overflow specification</td>
+                        </tr>
+                        <tr>
+                            <td><b>healthcare_devsecops_cicd_benchmark_dataset.csv</b></td>
+                            <td class="font-mono">2,500 Builds</td>
+                            <td>Compiled Benchmark</td>
+                            <td>10-D training matrix consumed by HistGradientBoosting</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-secondary" id="btnModalCloseDatasetsOk">Close</button>
             </div>
         </div>
     </div>
 
-    <!-- App Scripts -->
-    <script src="/static/app.js?v=2.2"></script>
+    <!-- AWS Architecture Modal -->
+    <div id="awsModal" class="modal-backdrop hidden">
+        <div class="modal-window">
+            <div class="modal-head">
+                <h3><i class="fa-brands fa-aws text-warning"></i> AWS Production Architecture & $50 Learner Lab Guide</h3>
+                <button class="modal-close-btn" id="btnCloseModal">&times;</button>
+            </div>
+            <div class="modal-content-area">
+                <div class="grid-2col" style="margin-bottom: 16px;">
+                    <div class="panel" style="padding: 12px;">
+                        <b class="text-blue">Phase 1: Academic Container (< $3 Spend)</b>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            Single EC2 t2.micro instance with Docker. Consumes <4% of AWS Learner Lab $50 credit. Sub-25ms inference latency.
+                        </p>
+                    </div>
+                    <div class="panel" style="padding: 12px;">
+                        <b class="text-blue">Phase 2: Enterprise Hospital Blueprint</b>
+                        <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
+                            Multi-AZ ECS Fargate, SageMaker Serverless Inference, Amazon Neptune Graph, and AWS HealthLake FHIR datastore.
+                        </p>
+                    </div>
+                </div>
+                <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px;">Deployment Command:</div>
+                <pre style="background: var(--bg-base); padding: 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--accent-blue);">git clone https://github.com/tusharchoudhary8e8e/Healthcare_AI_Cloud_Project_2026.git
+cd Healthcare_AI_Cloud_Project_2026
+docker build -t aegismed . && docker run -d -p 80:8000 aegismed</pre>
+            </div>
+            <div class="modal-foot">
+                <button class="btn btn-secondary" id="btnModalCloseOk">Close</button>
+            </div>
+        </div>
+    </div>
 
-    <script>
-    function openDatasetsModal(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        var modal = document.getElementById("datasetsModal");
-        if (modal) {
-            modal.classList.remove("hidden");
-            modal.style.display = "flex";
-            fetch("/api/datasets/info")
-                .then(function(r) { return r.json(); })
-                .then(function(d) {
-                    if (d && d.hhs_empirical_insights) {
-                        var totalEl = document.getElementById("modalHhsTotal");
-                        var unencEl = document.getElementById("modalUnencRate");
-                        if (totalEl) totalEl.textContent = Number(d.hhs_empirical_insights.total_hospital_breaches).toLocaleString();
-                        if (unencEl) unencEl.textContent = d.hhs_empirical_insights.missing_encryption_rate;
-                    }
-                })
-                .catch(function(err) { console.error("Dataset fetch error:", err); });
-        }
-    }
-
-    function closeDatasetsModal(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        var modal = document.getElementById("datasetsModal");
-        if (modal) {
-            modal.classList.add("hidden");
-            modal.style.display = "none";
-        }
-    }
-
-    function openAwsModal(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        var modal = document.getElementById("awsModal");
-        if (modal) {
-            modal.classList.remove("hidden");
-            modal.style.display = "flex";
-        }
-    }
-
-    function closeAwsModal(e) {
-        if (e && e.preventDefault) e.preventDefault();
-        var modal = document.getElementById("awsModal");
-        if (modal) {
-            modal.classList.add("hidden");
-            modal.style.display = "none";
-        }
-    }
-
-    document.addEventListener("DOMContentLoaded", function() {
-        var btn = document.getElementById("btnDatasets");
-        if (btn) btn.onclick = openDatasetsModal;
-        
-        var closeBtn1 = document.getElementById("btnCloseDatasetsModal");
-        if (closeBtn1) closeBtn1.onclick = closeDatasetsModal;
-        
-        var closeBtn2 = document.getElementById("btnModalCloseDatasetsOk");
-        if (closeBtn2) closeBtn2.onclick = closeDatasetsModal;
-        
-        var dModal = document.getElementById("datasetsModal");
-        if (dModal) {
-            dModal.addEventListener("click", function(e) {
-                if (e.target === dModal) closeDatasetsModal(e);
-            });
-        }
-
-        var btnAws = document.getElementById("btnAwsArch");
-        if (btnAws) btnAws.onclick = openAwsModal;
-
-        var closeAws1 = document.getElementById("btnCloseModal");
-        if (closeAws1) closeAws1.onclick = closeAwsModal;
-
-        var closeAws2 = document.getElementById("btnModalCloseOk");
-        if (closeAws2) closeAws2.onclick = closeAwsModal;
-
-        var aModal = document.getElementById("awsModal");
-        if (aModal) {
-            aModal.addEventListener("click", function(e) {
-                if (e.target === aModal) closeAwsModal(e);
-            });
-        }
-    });
-    </script>
+    <!-- App Controller Script -->
+    <script src="/static/app.js?v=3.0"></script>
 </body>
 </html>

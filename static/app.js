@@ -1,5 +1,6 @@
 /**
- * Intelligent Healthcare DevSecOps XAI - Interactive Frontend Controller
+ * AegisMed — Intelligent Healthcare DevSecOps XAI Interactive Controller
+ * Minimalist, low-color, high-clarity engineering dashboard
  */
 
 let currentScanData = null;
@@ -8,12 +9,39 @@ let activeFeatures = {};
 let currentOriginalScore = 89.4;
 
 document.addEventListener("DOMContentLoaded", () => {
+    initTabs();
     initEventListeners();
     loadScenario("ehr-patient-portal");
 });
 
+function initTabs() {
+    const tabButtons = document.querySelectorAll(".nav-tab-btn");
+    tabButtons.forEach(btn => {
+        btn.addEventListener("click", () => {
+            const targetId = btn.getAttribute("data-tab");
+            switchTab(targetId);
+        });
+    });
+}
+
+function switchTab(targetId) {
+    document.querySelectorAll(".nav-tab-btn").forEach(b => b.classList.remove("active"));
+    document.querySelectorAll(".tab-pane").forEach(p => p.classList.remove("active"));
+
+    const activeBtn = document.querySelector(`.nav-tab-btn[data-tab="${targetId}"]`);
+    const activePane = document.getElementById(targetId);
+
+    if (activeBtn) activeBtn.classList.add("active");
+    if (activePane) activePane.classList.add("active");
+
+    // Resize chart if switching to XAI tab
+    if (targetId === "tab-xai" && shapChartInstance) {
+        setTimeout(() => shapChartInstance.resize(), 50);
+    }
+}
+
 function initEventListeners() {
-    // Scenario Dropdown
+    // Scenario Select
     document.getElementById("scenarioSelect").addEventListener("change", (e) => {
         loadScenario(e.target.value);
     });
@@ -28,15 +56,15 @@ function initEventListeners() {
     document.getElementById("btnDevView").addEventListener("click", () => {
         document.getElementById("btnDevView").classList.add("active");
         document.getElementById("btnComplianceView").classList.remove("active");
-        document.getElementById("developerNarrativeBox").classList.remove("hidden");
-        document.getElementById("complianceNarrativeBox").classList.add("hidden");
+        document.getElementById("developerNarrativeBox").style.display = "block";
+        document.getElementById("complianceNarrativeBox").style.display = "none";
     });
 
     document.getElementById("btnComplianceView").addEventListener("click", () => {
         document.getElementById("btnComplianceView").classList.add("active");
         document.getElementById("btnDevView").classList.remove("active");
-        document.getElementById("complianceNarrativeBox").classList.remove("hidden");
-        document.getElementById("developerNarrativeBox").classList.add("hidden");
+        document.getElementById("complianceNarrativeBox").style.display = "block";
+        document.getElementById("developerNarrativeBox").style.display = "none";
     });
 
     // Sliders
@@ -68,22 +96,30 @@ function initEventListeners() {
         window.open(`/api/audit/export?scenario_id=${scenario}`, "_blank");
     });
 
-    // AWS Architecture Modal
-    const awsModal = document.getElementById("awsModal");
-    document.getElementById("btnAwsArch").addEventListener("click", () => {
-        awsModal.classList.remove("hidden");
-    });
-    document.getElementById("btnCloseModal").addEventListener("click", () => {
-        awsModal.classList.add("hidden");
-    });
-    document.getElementById("btnModalCloseOk").addEventListener("click", () => {
-        awsModal.classList.add("hidden");
-    });
-    awsModal.addEventListener("click", (e) => {
-        if (e.target === awsModal) awsModal.classList.add("hidden");
+    // Modals
+    setupModal("btnDatasets", "datasetsModal", ["btnCloseDatasetsModal", "btnModalCloseDatasetsOk"]);
+    setupModal("btnAwsArch", "awsModal", ["btnCloseModal", "btnModalCloseOk"]);
+}
+
+function setupModal(triggerBtnId, modalId, closeBtnIds) {
+    const trigger = document.getElementById(triggerBtnId);
+    const modal = document.getElementById(modalId);
+    if (!trigger || !modal) return;
+
+    trigger.addEventListener("click", () => {
+        modal.classList.remove("hidden");
     });
 
-    // Datasets Modal - handled by inline script in index.html for reliability
+    closeBtnIds.forEach(id => {
+        const btn = document.getElementById(id);
+        if (btn) {
+            btn.addEventListener("click", () => modal.classList.add("hidden"));
+        }
+    });
+
+    modal.addEventListener("click", (e) => {
+        if (e.target === modal) modal.classList.add("hidden");
+    });
 }
 
 async function loadScenario(scenarioId) {
@@ -119,6 +155,7 @@ async function scanCustomCode(code) {
         const data = await res.json();
         currentScanData = data;
         renderDashboard(data);
+        switchTab("tab-ast");
     } catch (err) {
         console.error("Failed to scan custom code:", err);
     }
@@ -126,7 +163,7 @@ async function scanCustomCode(code) {
 
 function showLoadingState() {
     document.getElementById("gateHeadline").textContent = "Running AI Security Assessment...";
-    document.getElementById("gateExplanation").textContent = "Ingesting SAST/DAST/SCA scanners, running Healthcare Knowledge Graph, computing SHAP values...";
+    document.getElementById("gateExplanation").textContent = "Parsing AST taint flows, checking variable aliases & sanitizers, computing finding-level Shapley & MILP...";
 }
 
 function renderDashboard(data) {
@@ -136,80 +173,87 @@ function renderDashboard(data) {
     const xai = data.xai;
     currentOriginalScore = pred.risk_score;
 
+    // =========================================================================
     // 1. Pipeline Header & Stage Info
+    // =========================================================================
     document.getElementById("pipelineServiceName").textContent = meta.service_name || "Healthcare Service";
     document.getElementById("pipelineRepo").textContent = meta.repository || "hospital-tech/ehr-service";
-    document.getElementById("pipelineCommit").innerHTML = `<i class="fa-solid fa-code-commit"></i> ${meta.commit || "master"}`;
+    document.getElementById("pipelineCommit").innerHTML = `<i class="fa-solid fa-code-commit"></i> ${meta.commit || "main"}`;
     document.getElementById("pipelineTimestamp").innerHTML = `<i class="fa-regular fa-clock"></i> ${meta.timestamp}`;
     document.getElementById("scannerCount").textContent = `${data.findings.length} Findings`;
+    document.getElementById("tabFindingsCount").textContent = `${data.findings.length} findings`;
 
-    // 2. Gate Decision Banner & Stage
+    // =========================================================================
+    // 2. Gate Decision Banner & Stage Nodes
+    // =========================================================================
     const gateStage = document.getElementById("stageGate");
     const gatePill = document.getElementById("gatePill");
     const gateContainer = document.getElementById("gateDecisionContainer");
     const gateIcon = document.getElementById("gateIcon");
 
-    gateStage.className = "pipeline-stage";
-    gateContainer.className = "metric-card gate-decision-card glass-panel";
-    gatePill.className = "gate-status-pill";
+    gateStage.className = "stage-node";
+    gateContainer.className = "policy-gate-banner";
+    gatePill.className = "gate-badge-pill";
 
     if (pred.gate_decision === "BLOCKED") {
-        gateStage.classList.add("gate-blocked");
+        gateStage.classList.add("blocked");
+        gateContainer.classList.add("blocked");
         gatePill.classList.add("blocked");
         gatePill.textContent = "BLOCKED";
         document.getElementById("gateStageStatus").textContent = "BLOCKED";
-        document.getElementById("gateHeadline").textContent = "Deployment Gated: Security Threshold Breached";
+        document.getElementById("gateHeadline").textContent = "Deployment Blocked: Security Threshold Breached";
         gateIcon.innerHTML = `<i class="fa-solid fa-ban"></i>`;
     } else if (pred.gate_decision === "MANUAL_REVIEW_REQUIRED") {
-        gateStage.classList.add("active");
+        gateStage.classList.add("review");
+        gateContainer.classList.add("review");
         gatePill.classList.add("review");
-        gatePill.textContent = "PAUSED (REVIEW)";
-        document.getElementById("gateStageStatus").textContent = "REVIEW REQUIRED";
-        document.getElementById("gateHeadline").textContent = "Manual Review Required by CISO";
+        gatePill.textContent = "MANUAL REVIEW";
+        document.getElementById("gateStageStatus").textContent = "REVIEW";
+        document.getElementById("gateHeadline").textContent = "Manual Review Required by Clinical CISO";
         gateIcon.innerHTML = `<i class="fa-solid fa-pause"></i>`;
     } else {
-        gateStage.classList.add("gate-passed");
+        gateStage.classList.add("passed");
         gateContainer.classList.add("passed");
-        gatePill.classList.add("approved");
+        gatePill.classList.add("passed");
         gatePill.textContent = "APPROVED";
         document.getElementById("gateStageStatus").textContent = "PASSED";
-        document.getElementById("gateHeadline").textContent = "Deployment Approved for Production";
+        document.getElementById("gateHeadline").textContent = "Deployment Approved for Production Auto-Deploy";
         gateIcon.innerHTML = `<i class="fa-solid fa-circle-check"></i>`;
     }
 
     document.getElementById("gateExplanation").textContent = pred.gate_message;
 
-    // 3. Score Gauges & Cards
-    document.getElementById("riskScoreVal").textContent = pred.risk_score;
+    // =========================================================================
+    // 3. 4 Main Metric Cards
+    // =========================================================================
+    document.getElementById("riskScoreVal").textContent = pred.risk_score.toFixed(1);
     const tierBadge = document.getElementById("riskTierBadge");
-    tierBadge.textContent = `${pred.risk_tier} RISK TIER`;
-    tierBadge.className = `score-tier tier-${pred.risk_tier.toLowerCase()}`;
-    
-    // Circle Gauge gradient
-    const circle = document.getElementById("scoreCircle");
-    const scorePct = pred.risk_score;
-    const circleColor = scorePct >= 65 ? "#ef4444" : (scorePct >= 35 ? "#f59e0b" : "#10b981");
-    circle.style.background = `conic-gradient(${circleColor} ${scorePct}%, rgba(255,255,255,0.06) 0)`;
-    circle.style.boxShadow = `0 0 20px ${circleColor}40`;
+    tierBadge.textContent = `${pred.risk_tier} RISK`;
 
-    document.getElementById("modelConfidence").textContent = `${pred.confidence_score}%`;
-    
+    const scoreFill = document.getElementById("riskScoreBar");
+    scoreFill.style.width = `${pred.risk_score}%`;
+    scoreFill.className = `progress-fill ${pred.risk_score >= 60 ? 'fill-critical' : (pred.risk_score >= 25 ? 'fill-warning' : 'fill-success')}`;
+
     // Breach Prob
     const breachPct = (pred.breach_probability * 100).toFixed(1);
     document.getElementById("breachProbVal").textContent = `${breachPct}%`;
     document.getElementById("breachProgressBar").style.width = `${breachPct}%`;
-    document.getElementById("breachProgressBar").className = `progress-bar ${breachPct >= 60 ? 'bg-critical' : (breachPct >= 30 ? 'bg-warning' : 'bg-green')}`;
+    document.getElementById("breachProgressBar").className = `progress-fill ${breachPct >= 60 ? 'fill-critical' : (breachPct >= 30 ? 'fill-warning' : 'fill-success')}`;
 
     // Compliance Penalty
     const compPenalty = comp.scores.overall_compliance_penalty;
-    document.getElementById("compliancePenaltyVal").textContent = compPenalty;
-    document.getElementById("complianceProgressBar").style.width = `${compPenalty}%`;
+    document.getElementById("compliancePenaltyVal").textContent = compPenalty.toFixed(1);
+    document.getElementById("complianceProgressBar").style.width = `${Math.min(100, compPenalty)}%`;
     document.getElementById("complianceViolationsSummary").textContent = `${comp.total_violations} Regulatory Controls Flagged`;
 
-    // 4. Render SHAP Waterfall Chart
-    renderShapChart(xai.attributions);
+    // Model CV Metrics
+    if (pred.model_metrics && pred.model_metrics["5_fold_cv_r2_mean"]) {
+        document.getElementById("modelCvR2Val").textContent = pred.model_metrics["5_fold_cv_r2_mean"].toFixed(3);
+    }
 
-    // 5. Narratives & Top Drivers
+    // =========================================================================
+    // 4. Narratives & Top Drivers
+    // =========================================================================
     document.getElementById("devNarrativeText").textContent = data.narratives.developer_summary;
     document.getElementById("complianceNarrativeText").textContent = data.narratives.compliance_officer_summary;
 
@@ -218,15 +262,15 @@ function renderDashboard(data) {
     if (xai.top_risk_drivers && xai.top_risk_drivers.length > 0) {
         xai.top_risk_drivers.forEach(d => {
             const row = document.createElement("div");
-            row.className = "driver-item";
+            row.className = "driver-item-row";
             row.innerHTML = `
-                <span class="driver-name"><i class="fa-solid fa-triangle-exclamation text-critical"></i> ${d.feature_name} (Value: ${d.feature_value})</span>
-                <span class="driver-impact">+${d.shap_value} SHAP pts</span>
+                <span class="driver-name"><i class="fa-solid fa-triangle-exclamation text-critical"></i> ${d.feature_name} (Val: ${d.feature_value})</span>
+                <span class="driver-shap-impact">+${d.shap_value.toFixed(1)} pts</span>
             `;
             driversContainer.appendChild(row);
         });
     } else {
-        driversContainer.innerHTML = `<div class="driver-item text-green"><i class="fa-solid fa-check"></i> Codebase complies with all baseline security thresholds.</div>`;
+        driversContainer.innerHTML = `<div class="driver-item-row text-success"><i class="fa-solid fa-check"></i> Codebase complies with all baseline security thresholds.</div>`;
     }
 
     const compActionList = document.getElementById("complianceActionList");
@@ -238,19 +282,71 @@ function renderDashboard(data) {
             compActionList.appendChild(li);
         });
     } else {
-        compActionList.innerHTML = `<li style="color:#10b981;">No active non-compliance items. All HIPAA and FDA controls satisfied.</li>`;
+        compActionList.innerHTML = `<li style="color:#34d399;">No active non-compliance items. All HIPAA and FDA controls satisfied.</li>`;
     }
 
-    // 6. Setup Sliders & Counterfactual Presets
+    // =========================================================================
+    // 5. AST Semantic Taint & Findings
+    // =========================================================================
+    renderAstFindings(data.findings);
+
+    // =========================================================================
+    // 6. Two-Tier Game-Theoretic XAI (Tree-SHAP + Finding Shapley)
+    // =========================================================================
+    renderShapChart(xai.attributions);
+    renderFindingLevelShapley(xai.finding_shapley);
+
+    // =========================================================================
+    // 7. Discrete MILP & Counterfactual Remediations
+    // =========================================================================
     activeFeatures = Object.assign({}, pred.feature_dict);
     resetSlidersToCurrentScan();
-    renderCounterfactualCards(data.counterfactuals);
-
-    // 7. Compliance Table
-    renderComplianceTable(comp);
-
-    // 8. Remediations & Code Diffs
+    renderMilpPlan(data.counterfactuals);
     renderRemediations(data.remediations);
+
+    // =========================================================================
+    // 8. Compliance Matrix
+    // =========================================================================
+    renderComplianceTable(comp);
+}
+
+function renderAstFindings(findings) {
+    const container = document.getElementById("astFindingsList");
+    container.innerHTML = "";
+
+    if (!findings || findings.length === 0) {
+        container.innerHTML = `
+            <div class="panel" style="padding: 16px; text-align: center; color: var(--status-success);">
+                <i class="fa-solid fa-circle-check" style="font-size: 20px; margin-bottom: 6px;"></i>
+                <div>Zero AST taint flow findings detected. All patient data paths are cryptographically enclosed.</div>
+            </div>
+        `;
+        return;
+    }
+
+    findings.forEach(f => {
+        const card = document.createElement("div");
+        const isCrit = f.severity === "CRITICAL";
+        card.className = `finding-card ${isCrit ? 'critical' : 'high'}`;
+        card.innerHTML = `
+            <div class="finding-header-row">
+                <div>
+                    <span class="badge-tag" style="margin-right: 6px;">${f.id || 'AST-FINDING'}</span>
+                    <span class="finding-title-text">${f.title}</span>
+                </div>
+                <span class="badge-tag ${isCrit ? 'text-critical' : 'text-warning'}">${f.severity}</span>
+            </div>
+            <div class="finding-detail-text">${f.detail || 'Dataflow taint reaches insecure execution sink.'}</div>
+            <div class="finding-footer-meta">
+                <span><i class="fa-solid fa-file-code"></i> ${f.file || 'service.py'}:${f.line || 1}</span>
+                <span>&bull;</span>
+                <span><i class="fa-solid fa-tag"></i> Type: <b>${f.type}</b></span>
+                <span>&bull;</span>
+                <span><i class="fa-solid fa-layer-group"></i> Source: <b>${f.source || 'SAST'}</b></span>
+            </div>
+        `;
+        container.appendChild(card);
+    });
 }
 
 function renderShapChart(attributions) {
@@ -261,19 +357,19 @@ function renderShapChart(attributions) {
 
     const labels = attributions.map(a => a.feature_name);
     const dataValues = attributions.map(a => a.shap_value);
-    const bgColors = attributions.map(a => a.shap_value >= 0 ? "rgba(239, 68, 68, 0.85)" : "rgba(16, 185, 129, 0.85)");
-    const borderColors = attributions.map(a => a.shap_value >= 0 ? "#ef4444" : "#10b981");
+    const bgColors = attributions.map(a => a.shap_value >= 0 ? "rgba(248, 113, 113, 0.75)" : "rgba(52, 211, 153, 0.75)");
+    const borderColors = attributions.map(a => a.shap_value >= 0 ? "#f87171" : "#34d399");
 
     shapChartInstance = new Chart(ctx, {
         type: "bar",
         data: {
             labels: labels,
             datasets: [{
-                label: "SHAP Marginal Contribution",
+                label: "SHAP Marginal Impact",
                 data: dataValues,
                 backgroundColor: bgColors,
                 borderColor: borderColors,
-                borderWidth: 1.5,
+                borderWidth: 1,
                 borderRadius: 4
             }]
         },
@@ -287,7 +383,7 @@ function renderShapChart(attributions) {
                     callbacks: {
                         label: function(context) {
                             const val = context.raw;
-                            return ` Impact: ${val >= 0 ? '+' : ''}${val} points to Risk Score`;
+                            return ` Impact: ${val >= 0 ? '+' : ''}${val.toFixed(2)} pts to Risk Score`;
                         }
                     }
                 }
@@ -295,15 +391,125 @@ function renderShapChart(attributions) {
             scales: {
                 x: {
                     grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8", font: { family: "'JetBrains Mono', monospace", size: 11 } }
+                    ticks: { color: "#94a3b8", font: { family: "'JetBrains Mono', monospace", size: 10 } }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { color: "#cbd5e1", font: { family: "'Plus Jakarta Sans', sans-serif", size: 12, weight: 600 } }
+                    ticks: { color: "#cbd5e1", font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 600 } }
                 }
             }
         }
     });
+}
+
+function renderFindingLevelShapley(findingShapley) {
+    const tbody = document.getElementById("findingShapleyTableBody");
+    tbody.innerHTML = "";
+
+    if (!findingShapley || !findingShapley.finding_attributions || findingShapley.finding_attributions.length === 0) {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:16px; color:#34d399;"><i class="fa-solid fa-circle-check"></i> Zero excess finding risk. Baseline risk only.</td></tr>`;
+        document.getElementById("totalExcessRiskVal").textContent = "Total Excess Finding Risk: 0.0 pts";
+        return;
+    }
+
+    const totalExcess = findingShapley.total_excess_finding_risk || 0;
+    document.getElementById("totalExcessRiskVal").textContent = `Total Excess Finding Risk: +${totalExcess.toFixed(1)} pts`;
+
+    findingShapley.finding_attributions.forEach(f => {
+        const phi = f.finding_shapley_value || 0;
+        const pct = totalExcess > 0 ? ((phi / totalExcess) * 100).toFixed(1) : "0.0";
+        const tr = document.createElement("tr");
+        tr.innerHTML = `
+            <td class="font-mono"><b>${f.finding_id}</b></td>
+            <td><b>${f.finding_type}</b></td>
+            <td><span class="badge-tag ${f.severity === 'CRITICAL' ? 'text-critical' : 'text-warning'}">${f.severity}</span></td>
+            <td>${f.statutory_clause}</td>
+            <td style="text-align: right;" class="font-mono text-critical"><b>+${phi.toFixed(2)} pts</b></td>
+            <td style="text-align: right;" class="font-mono text-muted">${pct}%</td>
+        `;
+        tbody.appendChild(tr);
+    });
+
+    // Clause Aggregations
+    const clauseContainer = document.getElementById("clauseAttributionContainer");
+    clauseContainer.innerHTML = "";
+    if (findingShapley.clause_attributions) {
+        for (let [clause, val] of Object.entries(findingShapley.clause_attributions)) {
+            const box = document.createElement("div");
+            box.className = "panel";
+            box.style.padding = "10px 14px";
+            box.innerHTML = `
+                <div style="font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${clause}</div>
+                <div class="font-mono text-critical" style="font-size: 15px; font-weight: 800;">+${val.toFixed(1)} pts</div>
+            `;
+            clauseContainer.appendChild(box);
+        }
+    }
+}
+
+function renderMilpPlan(counterfactuals) {
+    const box = document.getElementById("milpPlanDetailsBox");
+    box.innerHTML = "";
+
+    if (!counterfactuals || counterfactuals.length === 0) {
+        box.innerHTML = `<p style="color: var(--status-success);"><i class="fa-solid fa-circle-check"></i> Pipeline is in an approved state. No MILP optimization required.</p>`;
+        return;
+    }
+
+    const milpCf = counterfactuals[0];
+    const isVerified = milpCf.closed_loop_verified;
+
+    const badge = document.getElementById("closedLoopBadge");
+    if (isVerified) {
+        badge.className = "badge-tag badge-tag-green";
+        badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Closed-Loop AST Re-Scan Verified: Gate Passes`;
+    } else {
+        badge.className = "badge-tag";
+        badge.innerHTML = `<i class="fa-solid fa-clock"></i> Closed-Loop Verification Pending`;
+    }
+
+    const planDiv = document.createElement("div");
+    planDiv.innerHTML = `
+        <div class="grid-2col" style="margin-bottom: 14px;">
+            <div class="panel" style="padding: 12px; background: var(--bg-base);">
+                <div style="font-size: 11px; text-transform: uppercase; color: var(--text-muted); font-weight: 700;">Optimization Method</div>
+                <div style="font-size: 13px; font-weight: 700; color: var(--text-primary); margin-top: 2px;">
+                    Mixed-Integer Linear Programming (<code>scipy.optimize.milp</code>)
+                </div>
+                <div style="font-size: 11px; color: var(--text-secondary); margin-top: 4px;">
+                    Enforces 0-1 binary integrality with HIPAA zero-tolerance hard equality bounds (<code>z<sub>j</sub> = 1</code>).
+                </div>
+            </div>
+            <div class="panel" style="padding: 12px; background: var(--bg-base); display: flex; align-items: center; justify-content: space-around;">
+                <div style="text-align: center;">
+                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Current Score</div>
+                    <div class="font-mono text-critical" style="font-size: 20px; font-weight: 800;">${currentOriginalScore.toFixed(1)}</div>
+                </div>
+                <i class="fa-solid fa-arrow-right text-muted"></i>
+                <div style="text-align: center;">
+                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Projected Score</div>
+                    <div class="font-mono text-success" style="font-size: 20px; font-weight: 800;">${milpCf.new_risk_score.toFixed(1)}</div>
+                </div>
+                <div style="text-align: center;">
+                    <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Projected Gate</div>
+                    <span class="gate-badge-pill passed" style="font-size: 10px; padding: 3px 8px;">${milpCf.new_gate_decision}</span>
+                </div>
+            </div>
+        </div>
+
+        <div style="font-size: 12px; font-weight: 700; margin-bottom: 8px; color: var(--text-primary);">
+            Minimal Developer Remediation Actions Selected by MILP:
+        </div>
+        <div style="display: flex; flex-direction: column; gap: 6px;">
+            ${(milpCf.action || []).map(a => `
+                <div class="panel" style="padding: 10px 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; font-size: 12px;">
+                    <span><i class="fa-solid fa-check text-success" style="margin-right: 8px;"></i> ${a}</span>
+                    <span class="badge-tag badge-tag-blue font-mono">z<sub>j</sub> = 1 (Active)</span>
+                </div>
+            `).join('')}
+        </div>
+    `;
+    box.appendChild(planDiv);
 }
 
 function resetSlidersToCurrentScan() {
@@ -342,7 +548,7 @@ function debounceWhatIfCalculation() {
         } catch (err) {
             console.error("What-If recalculation failed:", err);
         }
-    }, 200);
+    }, 150);
 }
 
 function updateWhatIfDisplay(newScore, gateDecision) {
@@ -351,94 +557,23 @@ function updateWhatIfDisplay(newScore, gateDecision) {
     const deltaEl = document.getElementById("simulatedRiskDelta");
     if (delta > 0) {
         deltaEl.textContent = `-${delta.toFixed(1)} pts (Improved)`;
-        deltaEl.style.color = "#10b981";
+        deltaEl.style.color = "var(--status-success)";
     } else if (delta < 0) {
         deltaEl.textContent = `+${Math.abs(delta).toFixed(1)} pts (Higher Risk)`;
-        deltaEl.style.color = "#ef4444";
+        deltaEl.style.color = "var(--status-critical)";
     } else {
         deltaEl.textContent = "0.0 pts";
-        deltaEl.style.color = "#94a3b8";
+        deltaEl.style.color = "var(--text-muted)";
     }
 
     const badge = document.getElementById("simulatedGateBadge");
     badge.textContent = gateDecision;
+    badge.className = `gate-badge-pill ${gateDecision === 'APPROVED_AUTO_DEPLOY' || gateDecision === 'APPROVED_WITH_WARNINGS' ? 'passed' : 'blocked'}`;
+
     if (gateDecision === "APPROVED_AUTO_DEPLOY" || gateDecision === "APPROVED_WITH_WARNINGS") {
-        badge.style.background = "#10b981";
-        document.getElementById("simulatedOutcomeTip").textContent = "? Fixes satisfy compliance criteria! Pipeline Gate UNBLOCKED.";
+        document.getElementById("simulatedOutcomeTip").textContent = "✓ Fixes satisfy statutory thresholds! CI/CD Gate UNBLOCKED.";
     } else {
-        badge.style.background = "#ef4444";
-        document.getElementById("simulatedOutcomeTip").textContent = "Adjust controls to reach Low risk tier (< 20.0) for automated production deployment.";
-    }
-}
-
-function renderCounterfactualCards(scenarios) {
-    const container = document.getElementById("counterfactualCardsContainer");
-    container.innerHTML = "";
-    if (!scenarios || scenarios.length === 0) {
-        container.innerHTML = "<p style='font-size:12px;color:#94a3b8;'>No immediate counterfactuals required for clean codebase.</p>";
-        return;
-    }
-
-    scenarios.forEach(sc => {
-        const card = document.createElement("div");
-        card.className = "cf-card";
-        card.innerHTML = `
-            <div class="cf-title"><i class="fa-solid fa-sparkles text-cyan"></i> ${sc.title}</div>
-            <div class="cf-desc">${sc.action}</div>
-            <div class="cf-impact"><i class="fa-solid fa-arrow-trend-down"></i> Drops Risk to ${sc.new_risk_score} (-${sc.risk_reduction_points} pts) &bull; Gate: <span class="badge ${sc.unblocks_pipeline ? 'badge-pass' : 'badge-warn'}">${sc.new_gate_decision}</span></div>
-        `;
-        card.addEventListener("click", () => {
-            if (sc.id === "optimal_inverse_plan" && sc.target_features) {
-                for (let k in sc.target_features) {
-                    let el = document.getElementById(`slider_${k}`);
-                    if (el) el.value = sc.target_features[k];
-                }
-            } else if (sc.id === "encrypt_phi_flow") {
-                document.getElementById("slider_unencrypted_data_flows").value = 0;
-                document.getElementById("slider_phi_leak_risk_score").value = 0;
-            } else if (sc.id === "fix_sast_secrets") {
-                document.getElementById("slider_sast_critical").value = 0;
-            } else if (sc.id === "full_compliance_hardening") {
-                document.getElementById("slider_sast_critical").value = 0;
-                document.getElementById("slider_unencrypted_data_flows").value = 0;
-                document.getElementById("slider_phi_leak_risk_score").value = 0;
-                document.getElementById("slider_sca_max_cvss").value = 2.0;
-            }
-            const sliders = ["sast_critical", "unencrypted_data_flows", "phi_leak_risk_score", "sca_max_cvss"];
-            sliders.forEach(k => {
-                const el = document.getElementById(`slider_${k}`);
-                const valEl = document.getElementById(`val_${k}`);
-                if (el && valEl) valEl.textContent = el.value;
-            });
-            debounceWhatIfCalculation();
-        });
-        container.appendChild(card);
-    });
-}
-
-function renderComplianceTable(compliance) {
-    const tbody = document.getElementById("complianceTableBody");
-    tbody.innerHTML = "";
-
-    document.getElementById("hipaaRiskChip").textContent = `HIPAA Risk: ${compliance.scores.hipaa_risk_index}`;
-    document.getElementById("fdaRiskChip").textContent = `FDA Risk: ${compliance.scores.fda_risk_index}`;
-    document.getElementById("fhirRiskChip").textContent = `FHIR Risk: ${compliance.scores.fhir_risk_index}`;
-
-    if (compliance.violations && compliance.violations.length > 0) {
-        compliance.violations.forEach(v => {
-            const tr = document.createElement("tr");
-            tr.innerHTML = `
-                <td><b>${v.standard}</b></td>
-                <td><span class="badge-tech">${v.control_id}</span></td>
-                <td>${v.title}</td>
-                <td>${v.reason}</td>
-                <td><span class="${v.severity === 'CRITICAL' ? 'badge-sev-crit' : 'badge-sev-high'}">${v.severity}</span></td>
-                <td><span style="color:#38bdf8;font-size:12px;"><i class="fa-solid fa-wrench"></i> ${v.file}:${v.line}</span></td>
-            `;
-            tbody.appendChild(tr);
-        });
-    } else {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:#10b981;padding:20px;"><i class="fa-solid fa-circle-check"></i> <b>All HIPAA ?164.312 and FDA SaMD Controls PASSED. Code is Compliant.</b></td></tr>`;
+        document.getElementById("simulatedOutcomeTip").textContent = "Adjust controls to reach Low risk tier (< 24.0) to auto-deploy.";
     }
 }
 
@@ -447,52 +582,49 @@ function renderRemediations(remediations) {
     container.innerHTML = "";
 
     if (!remediations || remediations.length === 0) {
-        container.innerHTML = "<p style='font-size:13px;color:#10b981;'><i class='fa-solid fa-circle-check'></i> No code modifications required. All cryptographic & access control safeguards are in place.</p>";
+        container.innerHTML = "<p style='font-size:12px;color:var(--status-success);'><i class='fa-solid fa-circle-check'></i> No code modifications required. All safeguards are verified.</p>";
         return;
     }
 
     remediations.forEach(rem => {
         const card = document.createElement("div");
-        card.className = "remediation-card";
+        card.className = "diff-card";
         card.innerHTML = `
-            <div class="rem-header">
-                <div class="rem-title"><i class="fa-solid fa-shield-virus text-cyan"></i> ${rem.title}</div>
-                <span class="badge-tech">${rem.impact}</span>
+            <div class="diff-header">
+                <div><i class="fa-solid fa-shield-halved text-blue" style="margin-right: 6px;"></i> ${rem.title}</div>
+                <span class="badge-tag">${rem.impact}</span>
             </div>
-            <p style="font-size:12px;color:#94a3b8;margin-bottom:10px;">${rem.description}</p>
-            <div class="rem-diff-box">${escapeHtml(rem.diff)}</div>
+            <div style="padding: 10px 14px; font-size: 12px; color: var(--text-secondary); background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);">
+                ${rem.description}
+            </div>
+            <pre class="diff-box">${escapeHtml(rem.diff)}</pre>
         `;
         container.appendChild(card);
     });
 }
 
+function renderComplianceTable(compliance) {
+    const tbody = document.getElementById("complianceTableBody");
+    tbody.innerHTML = "";
+
+    if (compliance.violations && compliance.violations.length > 0) {
+        compliance.violations.forEach(v => {
+            const tr = document.createElement("tr");
+            tr.innerHTML = `
+                <td><b>${v.standard}</b></td>
+                <td><span class="badge-tag font-mono">${v.control_id}</span></td>
+                <td>${v.title}</td>
+                <td>${v.reason}</td>
+                <td><span class="badge-tag ${v.severity === 'CRITICAL' ? 'text-critical' : 'text-warning'}">${v.severity}</span></td>
+                <td class="font-mono text-blue">${v.file}:${v.line}</td>
+            `;
+            tbody.appendChild(tr);
+        });
+    } else {
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--status-success);padding:18px;"><i class="fa-solid fa-circle-check"></i> <b>All HIPAA §164.312 and FDA SaMD Safeguards PASSED. Code is Compliant.</b></td></tr>`;
+    }
+}
+
 function escapeHtml(text) {
     return text.replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;");
 }
-
-// Global modal helpers for instant reliable clicking
-window.openDatasetsModal = async function() {
-    const modal = document.getElementById("datasetsModal");
-    if (modal) {
-        modal.classList.remove("hidden");
-        try {
-            const res = await fetch("/api/datasets/info");
-            const d = await res.json();
-            if (d && d.hhs_empirical_insights) {
-                const totalEl = document.getElementById("modalHhsTotal");
-                const unencEl = document.getElementById("modalUnencRate");
-                if (totalEl) totalEl.textContent = d.hhs_empirical_insights.total_hospital_breaches.toLocaleString();
-                if (unencEl) unencEl.textContent = d.hhs_empirical_insights.missing_encryption_rate;
-            }
-        } catch (err) {
-            console.error("Dataset fetch error:", err);
-        }
-    }
-};
-
-window.closeDatasetsModal = function() {
-    const modal = document.getElementById("datasetsModal");
-    if (modal) {
-        modal.classList.add("hidden");
-    }
-};
