@@ -1,0 +1,16 @@
+version: "3.8"
+
+services:
+  aegismed:
+    build: .
+    container_name: aegismed-devsecops
+    ports:
+      - "8000:8000"
+    environment:
+      - PYTHONUNBUFFERED=1
+      # Optional: Add API keys if testing LLM dynamic remediation
+      - GEMINI_API_KEY=${GEMINI_API_KEY:-}
+      - OPENAI_API_KEY=${OPENAI_API_KEY:-}
+    volumes:
+      - ./datasets:/app/datasets:ro
+    restart: unless-stopped

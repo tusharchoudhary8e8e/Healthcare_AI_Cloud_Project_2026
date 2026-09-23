@@ -1,0 +1,1352 @@
+{
+  "resultsPerPage": 10,
+  "startIndex": 0,
+  "totalResults": 90,
+  "format": "NVD_CVE",
+  "version": "2.0",
+  "timestamp": "2026-09-23T15:55:41.254",
+  "vulnerabilities": [
+    {
+      "cve": {
+        "id": "CVE-2013-3061",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2013-05-01T12:00:10.893",
+        "lastModified": "2026-06-16T23:54:28.120",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "The ISHMED-PATRED_TRANSACT_RFCCALL function in the IS-H Industry-Specific Component Hospital subsystem in SAP Healthcare Industry Solution, and the SAP ERP central component (aka ECC 6), allows remote authenticated users to bypass intended transaction restrictions via unspecified vectors."
+          },
+          {
+            "lang": "es",
+            "value": "La funci\u00f3n ishmed-PATRED_TRANSACT_RFCCALL en el componente Industry-Specific Component Hospital IS-H en la soluci\u00f3n SAP Healthcare Industry Solution, and the SAP ERP central component (aka ECC 6), permite a los usuarios remotos autenticados evitar las restricciones de operaci\u00f3n que se pretende a trav\u00e9s de vectores no especificados."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:S/C:P/I:P/A:P",
+                "baseScore": 6.5,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "SINGLE",
+                "confidentialityImpact": "PARTIAL",
+                "integrityImpact": "PARTIAL",
+                "availabilityImpact": "PARTIAL"
+              },
+              "baseSeverity": "MEDIUM",
+              "exploitabilityScore": 8.0,
+              "impactScore": 6.4,
+              "acInsufInfo": false,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-264"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:sap:erp_central_component:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "BBBC8C91-2857-4337-8E29-A403E34074FB"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:sap:healthcare_industry_solution:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "A52C5BC1-1E15-4CF1-8F2A-720593C4D9A5"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://archives.neohapsis.com/archives/bugtraq/2013-04/0176.html",
+            "source": "cve@mitre.org",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "http://scn.sap.com/docs/DOC-8218",
+            "source": "cve@mitre.org",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "http://www.esnc.de/sap-security-audit-and-scan-services/security-advisories/36-privilege-escalation-in-sap-is-healthcare",
+            "source": "cve@mitre.org",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "https://service.sap.com/sap/support/notes/1691744",
+            "source": "cve@mitre.org",
+            "tags": [
+              "Permissions Required"
+            ]
+          },
+          {
+            "url": "http://archives.neohapsis.com/archives/bugtraq/2013-04/0176.html",
+            "source": "af854a3a-2127-422b-91ae-364da2661108",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "http://scn.sap.com/docs/DOC-8218",
+            "source": "af854a3a-2127-422b-91ae-364da2661108",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "http://www.esnc.de/sap-security-audit-and-scan-services/security-advisories/36-privilege-escalation-in-sap-is-healthcare",
+            "source": "af854a3a-2127-422b-91ae-364da2661108",
+            "tags": [
+              "Broken Link"
+            ]
+          },
+          {
+            "url": "https://service.sap.com/sap/support/notes/1691744",
+            "source": "af854a3a-2127-422b-91ae-364da2661108",
+            "tags": [
+              "Permissions Required"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2014-0348",
+        "sourceIdentifier": "cret@cert.org",
+        "published": "2014-04-15T10:55:11.947",
+        "lastModified": "2026-06-17T00:02:50.873",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "The Artiva Agency Single Sign-On (SSO) implementation in Artiva Workstation 1.3.x before 1.3.9, Artiva Rm 3.1 MR7, Artiva Healthcare 5.2 MR5, and Artiva Architect 3.2 MR5, when the domain-name option is enabled, allows remote attackers to login to arbitrary domain accounts by using the corresponding username on a Windows client machine."
+          },
+          {
+            "lang": "es",
+            "value": "La implementaci\u00f3n Artiva Agency Single Sign-On (SSO) en Artiva Workstation 1.3.x anterior a 1.3.9, Artiva Rm 3.1 MR7, Artiva Healthcare 5.2 MR5 y Artiva Architect 3.2 MR5, cuando la opci\u00f3n de nombre de dominio est\u00e1 habilitada, permite a atacantes remotos iniciar sesi\u00f3n en cuentas de dominio arbitrarias mediante el uso del nombre de usuario correspondiente en una m\u00e1quina de cliente de Windows."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cret@cert.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:M/Au:S/C:P/I:N/A:N",
+                "baseScore": 3.5,
+                "accessVector": "NETWORK",
+                "accessComplexity": "MEDIUM",
+                "authentication": "SINGLE",
+                "confidentialityImpact": "PARTIAL",
+                "integrityImpact": "NONE",
+                "availabilityImpact": "NONE"
+              },
+              "baseSeverity": "LOW",
+              "exploitabilityScore": 6.8,
+              "impactScore": 2.9,
+              "acInsufInfo": false,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-287"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ontariosystems:artiva_architect:3.2:mr5:*:*:*:*:*:*",
+                    "matchCriteriaId": "DA256898-1293-472B-A585-46EE41467A4B"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ontariosystems:artiva_healthcare:5.2:mr5:*:*:*:*:*:*",
+                    "matchCriteriaId": "D5010ABE-4ABD-43C2-AD1E-9FF301E8126E"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ontariosystems:artiva_rm:3.1:mr7:*:*:*:*:*:*",
+                    "matchCriteriaId": "AFB05794-65B3-414E-A0DA-55FAC30C40C2"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:ontariosystems:artiva_workstation:1.3.0:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "738F9C84-1C65-4027-9166-F4C028A17C1C"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://www.kb.cert.org/vuls/id/215284",
+            "source": "cret@cert.org",
+            "tags": [
+              "US Government Resource"
+            ]
+          },
+          {
+            "url": "http://www.kb.cert.org/vuls/id/215284",
+            "source": "af854a3a-2127-422b-91ae-364da2661108",
+            "tags": [
+              "US Government Resource"
+            ]
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2001-1594",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:00.143",
+        "lastModified": "2026-06-16T21:56:33.907",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare eNTEGRA P&R has a password of (1) entegra for the entegra user, (2) passme for the super user of the Polestar/Polestar-i Starlink 4 upgrade, (3) 0 for the entegra user of the Codonics printer FTP service, (4) eNTEGRA for the eNTEGRA P&R user account, (5) insite for the WinVNC Login, and possibly other accounts, which has unspecified impact and attack vectors.  NOTE: it is not clear whether this password is default, hardcoded, or dependent on another system or product that requires a fixed value."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare eNTEGRA P&R, tiene una contrase\u00f1a (1) entegra para el usuario entegra, (2) passme para el superusuario de GE Healthcare eNTEGRA P&Re, (3) 0 para el usuario entegra del servicio Codonics printer FTP, (4) eNTEGRA para la cuenta de usuario eNTEGRA P&R, (5) insite para el WinVNC Login y posiblemente otras cuentas, lo cual tiene un impacto y vectores de ataque no especificados. NOTA: no est\u00e1 claro si esta contrase\u00f1a es por defecto, embebida o dependiente de otro sistema o producto que requiera un valor fijo."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:gehealthcare:entegra_p\\&r:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "38B4FBF8-59F2-47EF-A662-A43E425625F1"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2263784.pdf?DOCCLASS=A&REQ=RAC&DIRECTION=2263784-100&FILENAME=2263784.pdf&FILEREV=5&DOCREV_ORG=5&SUBMIT=+ACCEPT+",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2263784.pdf?DOCCLASS=A&REQ=RAC&DIRECTION=2263784-100&FILENAME=2263784.pdf&FILEREV=5&DOCREV_ORG=5&SUBMIT=+ACCEPT+",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2002-2445",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:01.817",
+        "lastModified": "2026-06-16T22:01:18.837",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Millennium MG, NC, and MyoSIGHT has a default password of (1) root.genie for the root user, (2) \"service.\" for the service user, (3) admin.genie for the admin user, (4) reboot for the reboot user, and (5) shutdown for the shutdown user, which has unspecified impact and attack vectors."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Millennium MG, NC y MyoSIGHT, tiene una contrase\u00f1a predeterminada de (1) root.genie para el usuario root, (2) 'service.' para el usuario service, (3) admin.genie para el usuario admin, (4) reboot para el usuario reboot y (5) shutdown para el usuario shutdown, lo cual tiene un impacto y vectores de ataque no especificados."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "NVD-CWE-noinfo"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_mg:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "8BCEF339-6324-4894-9198-E768D934338D"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_myosight:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "A4C7EB39-10C9-4123-8200-B8931494C425"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_nc:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "A9F0022E-78F0-4434-8B4B-DD29833FF262"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2338955-100.pdf?REQ=RAA&DIRECTION=2338955-100&FILENAME=2338955-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2354459-100.pdf?REQ=RAA&DIRECTION=2354459-100&FILENAME=2354459-100.pdf&FILEREV=4&DOCREV_ORG=4",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2338955-100.pdf?REQ=RAA&DIRECTION=2338955-100&FILENAME=2338955-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2354459-100.pdf?REQ=RAA&DIRECTION=2354459-100&FILENAME=2354459-100.pdf&FILEREV=4&DOCREV_ORG=4",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2002-2446",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:02.877",
+        "lastModified": "2026-06-16T22:01:18.950",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Millennium MG, NC, and MyoSIGHT has a password of insite.genieacq for the insite account that cannot be changed without disabling product functionality for remote InSite support, which has unspecified impact and attack vectors."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Millennium MG, NC y MyoSIGHT, tiene una contrase\u00f1a insite.genieacq para la cuenta de insite que no se puede cambiar sin deshabilitar la funcionalidad del producto para el soporte remoto de InSite, lo cual tiene un impacto y vectores de ataque no especificados."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_mg_firmware:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "DD46362C-2338-4E63-8076-8E4A9FBC551F"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_myosight_firmware:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "90FE8411-70AC-4C6B-9825-1015D04ADE27"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:millennium_nc_firmware:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "C2286499-C442-4927-A070-19AD6D52314A"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2338955-100.pdf?REQ=RAA&DIRECTION=2338955-100&FILENAME=2338955-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2354459-100.pdf?REQ=RAA&DIRECTION=2354459-100&FILENAME=2354459-100.pdf&FILEREV=4&DOCREV_ORG=4",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2338955-100.pdf?REQ=RAA&DIRECTION=2338955-100&FILENAME=2338955-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2354459-100.pdf?REQ=RAA&DIRECTION=2354459-100&FILENAME=2354459-100.pdf&FILEREV=4&DOCREV_ORG=4",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2003-1603",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:04.127",
+        "lastModified": "2026-06-16T22:04:43.910",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Discovery VH has a default password of (1) interfile for the ftpclient user of the Interfile server or (2) \"2\" for the LOCAL user of the FTP server for the Codonics printer, which has unspecified impact and attack vectors."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Discovery VH, tiene una contrase\u00f1a predeterminada de (1) interfile para el usuario ftpclient del servidor Interfile o (2) '2' para el usuario LOCAL del servidor FTP para la impresora Codonics, lo cual tiene un impacto y vectores de ataque no especificados."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:gehealthcare:discovery_vh:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "4FFED9AB-95E7-4813-B27A-FEEB1163CFEE"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2337093-100.pdf?REQ=RAA&DIRECTION=2337093-100&FILENAME=2337093-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2337093-100.pdf?REQ=RAA&DIRECTION=2337093-100&FILENAME=2337093-100.pdf&FILEREV=1&DOCREV_ORG=1",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2004-2777",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:05.237",
+        "lastModified": "2026-06-16T22:10:19.403",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Centricity Image Vault 3.x has a password of (1) gemnet for the administrator account, (2) webadmin for the webadmin administrator account of the ASACA DVD library, (3) an empty value for the gemsservice account of the Ultrasound Database, and possibly (4) gemnet2002 for the gemnet2002 account of the GEMNet license server, which has unspecified impact and attack vectors.  NOTE: it is not clear whether this password is default, hardcoded, or dependent on another system or product that requires a fixed value."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Centricity Image Vault 3.x, tiene una contrase\u00f1a de (1) gemnet para la cuenta del administrador, (2) webadmin para la cuenta del administrador webadmin de la librer\u00eda ASACA DVD, (3) un valor vac\u00edo para la cuenta gemsservice de Ultrasound Database y posiblemente (4) gemnet2002 para la cuenta gemnet2002 del servidor de licencia GEMNet, lo cual tiene un impacto y vectores de ataque no especificados. NOTA: no est\u00e1 claro si esta contrase\u00f1a es por defecto, embebida o dependiente de otro sistema o producto que requiera un valor fijo."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:centricity_image_vault_firmware:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "6D41FBEE-6D2C-49E3-AEF9-EDAFE0C9E603"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2010564-002E.pdf?REQ=RAA&DIRECTION=2010564-002&FILENAME=2010564-002E.pdf&FILEREV=E&DOCREV_ORG=E",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2010564-002E.pdf?REQ=RAA&DIRECTION=2010564-002&FILENAME=2010564-002E.pdf&FILEREV=E&DOCREV_ORG=E",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2006-7253",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:06.237",
+        "lastModified": "2026-06-16T22:34:40.030",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Infinia II has a default password of (1) infinia for the infinia user, (2) #bigguy1 for the acqservice user, (3) dont4get2 for the Administrator user, (4) #bigguy1 for the emergency user, and (5) 2Bfamous for the InfiniaAdmin user, which has unspecified impact and attack vectors."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Infinia II tiene una contrase\u00f1a por defecto de (1) infinia para el usuario infinia, (2) #bigguy1 para el usuario acqservice, (3) dont4get2 para el usuario Administrator, (4) #bigguy1 para el usuario emergency y (5) 2Bfamous para el usuario InfiniaAdmin, lo cual tiene un impacto y vectores de ataque no especificados."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:a:gehealthcare:infinia_ii:*:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "062ADE1D-3D8F-4526-A56F-167CCD8A279B"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/H-xw4100+Workstation.pdf?REQ=RAA&DIRECTION=2411012-100&FILENAME=H-xw4100%2BWorkstation.pdf&FILEREV=6&DOCREV_ORG=6",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/H-xw4100+Workstation.pdf?REQ=RAA&DIRECTION=2411012-100&FILENAME=H-xw4100%2BWorkstation.pdf&FILEREV=6&DOCREV_ORG=6",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2007-6757",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:07.300",
+        "lastModified": "2026-06-16T22:48:42.630",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Centricity DMS 4.2, 4.1, and 4.0 has a password of Muse!Admin for the Museadmin user, which has unspecified impact and attack vectors.  NOTE: it is not clear whether this password is default, hardcoded, or dependent on another system or product that requires a fixed value."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Centricity DMS 4.2, 4.1 y 4.0, tiene una contrase\u00f1a Muse!Admin para el usuario Museadmin, lo cual tiene un impacto y vectores de ataque no especificados. NOTA: no est\u00e1 claro si esta contrase\u00f1a es por defecto, embebida o dependiente de otro sistema o producto que requiera un valor fijo."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:centricity_dms_firmware:4.0:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "008F360B-6EC1-4546-8D06-12D88100AFBA"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:centricity_dms_firmware:4.1:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "79C8A0D3-7884-4FE7-834A-962039106F18"
+                  },
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:centricity_dms_firmware:4.2:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "FAB65BC0-9B84-4ED3-8D8B-1E814D23312B"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2019295-133D.pdf?REQ=RAA&DIRECTION=2019295-133D&FILENAME=2019295-133D.pdf&FILEREV=D&DOCREV_ORG=D",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2019295-133G.pdf?REQ=RAA&DIRECTION=2019295-133&FILENAME=2019295-133G.pdf&FILEREV=G&DOCREV_ORG=G",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/DMS+Sys+Mgmt+Manual.pdf?REQ=RAA&DIRECTION=DOC1258180&FILENAME=DMS%2BSys%2BMgmt%2BManual.pdf&FILEREV=3&DOCREV_ORG=3",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2019295-133D.pdf?REQ=RAA&DIRECTION=2019295-133D&FILENAME=2019295-133D.pdf&FILEREV=D&DOCREV_ORG=D",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/2019295-133G.pdf?REQ=RAA&DIRECTION=2019295-133&FILENAME=2019295-133G.pdf&FILEREV=G&DOCREV_ORG=G",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/DMS+Sys+Mgmt+Manual.pdf?REQ=RAA&DIRECTION=DOC1258180&FILENAME=DMS%2BSys%2BMgmt%2BManual.pdf&FILEREV=3&DOCREV_ORG=3",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    },
+    {
+      "cve": {
+        "id": "CVE-2009-5143",
+        "sourceIdentifier": "cve@mitre.org",
+        "published": "2015-08-04T14:59:08.347",
+        "lastModified": "2026-06-16T23:15:09.840",
+        "vulnStatus": "Modified",
+        "cveTags": [],
+        "descriptions": [
+          {
+            "lang": "en",
+            "value": "GE Healthcare Discovery 530C has a password of #bigguy1 for the (1) acqservice user and (2) wsservice user of the Xeleris System, which has unspecified impact and attack vectors.  NOTE: it is not clear whether this password is default, hardcoded, or dependent on another system or product that requires a fixed value."
+          },
+          {
+            "lang": "es",
+            "value": "Vulnerabilidad en GE Healthcare Discovery 530C, tiene una contrase\u00f1a de #bigguy1 para (1) el usuario acqservice y (2) el usuario wsservice de Xeleris System, lo cual tiene un impacto y vectores de ataque no especificados. NOTA: no est\u00e1 claro si esta contrase\u00f1a es por defecto, embebida o dependiente de otro sistema o producto que requiera un valor fijo."
+          }
+        ],
+        "affected": [
+          {
+            "source": "cve@mitre.org",
+            "affectedData": [
+              {
+                "vendor": "n/a",
+                "product": "n/a",
+                "versions": [
+                  {
+                    "version": "n/a",
+                    "status": "affected"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "metrics": {
+          "cvssMetricV2": [
+            {
+              "source": "nvd@nist.gov",
+              "type": "Primary",
+              "cvssData": {
+                "version": "2.0",
+                "vectorString": "AV:N/AC:L/Au:N/C:C/I:C/A:C",
+                "baseScore": 10.0,
+                "accessVector": "NETWORK",
+                "accessComplexity": "LOW",
+                "authentication": "NONE",
+                "confidentialityImpact": "COMPLETE",
+                "integrityImpact": "COMPLETE",
+                "availabilityImpact": "COMPLETE"
+              },
+              "baseSeverity": "HIGH",
+              "exploitabilityScore": 10.0,
+              "impactScore": 10.0,
+              "acInsufInfo": true,
+              "obtainAllPrivilege": false,
+              "obtainUserPrivilege": false,
+              "obtainOtherPrivilege": false,
+              "userInteractionRequired": false
+            }
+          ]
+        },
+        "weaknesses": [
+          {
+            "source": "nvd@nist.gov",
+            "type": "Primary",
+            "description": [
+              {
+                "lang": "en",
+                "value": "CWE-255"
+              }
+            ]
+          }
+        ],
+        "configurations": [
+          {
+            "nodes": [
+              {
+                "operator": "OR",
+                "negate": false,
+                "cpeMatch": [
+                  {
+                    "vulnerable": true,
+                    "criteria": "cpe:2.3:o:gehealthcare:discovery_530c_firmware:-:*:*:*:*:*:*:*",
+                    "matchCriteriaId": "F4EBC3E3-DD54-4AAE-9DA3-8F33DABD8697"
+                  }
+                ]
+              }
+            ]
+          }
+        ],
+        "references": [
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/5323167-1EN_r2.pdf?REQ=RAA&DIRECTION=5323167-1EN&FILENAME=5323167-1EN_r2.pdf&FILEREV=2&DOCREV_ORG=2",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "cve@mitre.org"
+          },
+          {
+            "url": "http://apps.gehealthcare.com/servlet/ClientServlet/5323167-1EN_r2.pdf?REQ=RAA&DIRECTION=5323167-1EN&FILENAME=5323167-1EN_r2.pdf&FILEREV=2&DOCREV_ORG=2",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "http://www.forbes.com/sites/thomasbrewster/2015/07/10/vulnerable-breasts/",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://ics-cert.us-cert.gov/advisories/ICSMA-18-037-02",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          },
+          {
+            "url": "https://twitter.com/digitalbond/status/619250429751222277",
+            "source": "af854a3a-2127-422b-91ae-364da2661108"
+          }
+        ]
+      }
+    }
+  ]
+}
