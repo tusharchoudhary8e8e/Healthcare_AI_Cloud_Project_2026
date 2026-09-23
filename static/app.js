@@ -124,19 +124,29 @@ function setupModal(triggerBtnId, modalId, closeBtnIds) {
 
 async function loadScenario(scenarioId) {
     showLoadingState();
+    let data;
     try {
         const res = await fetch("/api/scan", {
             method: "POST",
             headers: { "Content-Type": "application/json" },
             body: JSON.stringify({ scenario_id: scenarioId })
         });
-        const data = await res.json();
-        currentScanData = data;
-        renderDashboard(data);
-    } catch (err) {
-        console.error("Failed to load scenario:", err);
+        if (!res.ok) {
+            throw new Error(`HTTP ${res.status}: ${res.statusText}`);
+        }
+        data = await res.json();
+    } catch (netErr) {
+        console.error("Failed to connect to backend:", netErr);
         document.getElementById("gateHeadline").textContent = "Error: Could not connect to backend";
         document.getElementById("gateExplanation").textContent = "Ensure the server is running (python run_app.py) and try again.";
+        return;
+    }
+
+    try {
+        currentScanData = data;
+        renderDashboard(data);
+    } catch (renderErr) {
+        console.error("Dashboard rendering error:", renderErr);
     }
 }
 
@@ -501,7 +511,7 @@ function renderMilpPlan(counterfactuals) {
             Minimal Developer Remediation Actions Selected by MILP:
         </div>
         <div style="display: flex; flex-direction: column; gap: 6px;">
-            ${(milpCf.action || []).map(a => `
+            ${(milpCf.action ? (typeof milpCf.action === "string" ? milpCf.action.split("; ") : milpCf.action) : []).map(a => `
                 <div class="panel" style="padding: 10px 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; font-size: 12px;">
                     <span><i class="fa-solid fa-check text-success" style="margin-right: 8px;"></i> ${a}</span>
                     <span class="badge-tag badge-tag-blue font-mono">z<sub>j</sub> = 1 (Active)</span>
