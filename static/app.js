@@ -7,12 +7,41 @@ let currentScanData = null;
 let shapChartInstance = null;
 let activeFeatures = {};
 let currentOriginalScore = 89.4;
+let currentTheme = localStorage.getItem("aegis_theme") || "white";
 
 document.addEventListener("DOMContentLoaded", () => {
+    initTheme();
     initTabs();
     initEventListeners();
     loadScenario("ehr-patient-portal");
 });
+
+function initTheme() {
+    applyTheme(currentTheme);
+    const toggleBtn = document.getElementById("btnThemeToggle");
+    if (toggleBtn) {
+        toggleBtn.addEventListener("click", () => {
+            currentTheme = currentTheme === "white" ? "black" : "white";
+            localStorage.setItem("aegis_theme", currentTheme);
+            applyTheme(currentTheme);
+            if (currentScanData && currentScanData.xai && currentScanData.xai.attributions) {
+                renderShapChart(currentScanData.xai.attributions);
+            }
+        });
+    }
+}
+
+function applyTheme(theme) {
+    document.documentElement.setAttribute("data-theme", theme);
+    const label = document.getElementById("themeToggleText");
+    const icon = document.getElementById("themeToggleIcon");
+    if (label) {
+        label.textContent = theme === "white" ? "White & Black" : "Black & White";
+    }
+    if (icon) {
+        icon.className = theme === "white" ? "fa-solid fa-moon" : "fa-solid fa-sun";
+    }
+}
 
 function initTabs() {
     const tabButtons = document.querySelectorAll(".nav-tab-btn");
@@ -365,10 +394,27 @@ function renderShapChart(attributions) {
         shapChartInstance.destroy();
     }
 
+    const isWhiteTheme = document.documentElement.getAttribute("data-theme") !== "black";
+
     const labels = attributions.map(a => a.feature_name);
     const dataValues = attributions.map(a => a.shap_value);
-    const bgColors = attributions.map(a => a.shap_value >= 0 ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.25)");
-    const borderColors = attributions.map(a => a.shap_value >= 0 ? "#ffffff" : "#737373");
+    
+    // In white theme: high risk is solid black, mitigating is subtle mid gray
+    // In black theme: high risk is solid white, mitigating is subtle dark gray
+    const bgColors = attributions.map(a => {
+        if (isWhiteTheme) {
+            return a.shap_value >= 0 ? "rgba(0, 0, 0, 0.88)" : "rgba(0, 0, 0, 0.20)";
+        } else {
+            return a.shap_value >= 0 ? "rgba(255, 255, 255, 0.90)" : "rgba(255, 255, 255, 0.25)";
+        }
+    });
+    const borderColors = attributions.map(a => {
+        if (isWhiteTheme) {
+            return a.shap_value >= 0 ? "#000000" : "#9ca3af";
+        } else {
+            return a.shap_value >= 0 ? "#ffffff" : "#737373";
+        }
+    });
 
     shapChartInstance = new Chart(ctx, {
         type: "bar",
@@ -400,12 +446,12 @@ function renderShapChart(attributions) {
             },
             scales: {
                 x: {
-                    grid: { color: "rgba(255, 255, 255, 0.08)" },
-                    ticks: { color: "#a3a3a3", font: { family: "'JetBrains Mono', monospace", size: 10 } }
+                    grid: { color: isWhiteTheme ? "rgba(0, 0, 0, 0.06)" : "rgba(255, 255, 255, 0.08)" },
+                    ticks: { color: isWhiteTheme ? "#6b7280" : "#a3a3a3", font: { family: "'JetBrains Mono', monospace", size: 10 } }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { color: "#ffffff", font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 600 } }
+                    ticks: { color: isWhiteTheme ? "#000000" : "#ffffff", font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 600 } }
                 }
             }
         }
@@ -570,7 +616,7 @@ function updateWhatIfDisplay(newScore, gateDecision) {
         deltaEl.style.color = "var(--text-secondary)";
     } else if (delta < 0) {
         deltaEl.textContent = `+${Math.abs(delta).toFixed(1)} pts (Higher Risk)`;
-        deltaEl.style.color = "#ffffff";
+        deltaEl.style.color = "var(--text-primary)";
         deltaEl.style.fontWeight = "700";
     } else {
         deltaEl.textContent = "0.0 pts";

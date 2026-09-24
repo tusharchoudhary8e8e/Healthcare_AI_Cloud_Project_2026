@@ -1,19 +1,91 @@
 /* ==========================================================================
    AegisMed Minimalist Engineering Dashboard Stylesheet
-   Theme: Pure Black & White / Grayscale Monochrome High-Contrast
-   Design Philosophy: Ultra-clean, monochromatic, high contrast, zero saturation
+   Theme: Dual High-Contrast Monochrome (White & Black / Black & White)
+   Design Philosophy: Ultra-clean, monochromatic, high-contrast, zero saturation
+   Default: White & Black (Light Paper Minimalist)
    ========================================================================== */
 
-:root {
-    /* Pure Black & White / Neutral Grayscale Palette */
+/* --------------------------------------------------------------------------
+   Theme 1: White & Black (Default Light Paper Minimalist)
+   -------------------------------------------------------------------------- */
+:root,
+html[data-theme="white"] {
+    --bg-base: #f8f9fa;
+    --bg-surface: #ffffff;
+    --bg-surface-elevated: #f1f3f5;
+    --bg-surface-subtle: #f8f9fa;
+
+    --border-subtle: #e5e7eb;
+    --border-medium: #d1d5db;
+    --border-highlight: #9ca3af;
+    --border-dark: #000000;
+
+    --text-primary: #000000;
+    --text-secondary: #4b5563;
+    --text-muted: #6b7280;
+    --text-dim: #9ca3af;
+
+    /* Monochrome Semantic Indicators */
+    --accent-blue: #000000;
+    --accent-blue-bg: #f3f4f6;
+    --accent-blue-border: #000000;
+
+    --status-critical: #000000;
+    --status-critical-bg: #000000;
+    --status-critical-text: #ffffff;
+    --status-critical-border: #000000;
+
+    --status-warning: #4b5563;
+    --status-warning-bg: #f3f4f6;
+    --status-warning-border: #9ca3af;
+
+    --status-success: #000000;
+    --status-success-bg: #ffffff;
+    --status-success-border: #d1d5db;
+
+    /* Interactive components */
+    --btn-primary-bg: #000000;
+    --btn-primary-text: #ffffff;
+    --btn-primary-border: #000000;
+    --btn-primary-hover: #27272a;
+
+    --btn-secondary-bg: #ffffff;
+    --btn-secondary-text: #000000;
+    --btn-secondary-border: #d1d5db;
+    --btn-secondary-hover: #f3f4f6;
+
+    --badge-tag-bg: #f3f4f6;
+    --badge-tag-text: #000000;
+    --badge-tag-border: #d1d5db;
+
+    --badge-inverted-bg: #000000;
+    --badge-inverted-text: #ffffff;
+    --badge-inverted-border: #000000;
+
+    --card-shadow: 0 1px 3px rgba(0, 0, 0, 0.06);
+    --modal-backdrop-bg: rgba(0, 0, 0, 0.5);
+
+    --diff-box-bg: #f8f9fa;
+    --diff-box-text: #111827;
+
+    /* Typography */
+    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+}
+
+/* --------------------------------------------------------------------------
+   Theme 2: Black & White (Dark Mode High-Contrast)
+   -------------------------------------------------------------------------- */
+html[data-theme="black"] {
     --bg-base: #000000;
     --bg-surface: #0a0a0a;
     --bg-surface-elevated: #141414;
     --bg-surface-subtle: #111111;
-    
+
     --border-subtle: #222222;
     --border-medium: #383838;
     --border-highlight: #555555;
+    --border-dark: #ffffff;
 
     --text-primary: #ffffff;
     --text-secondary: #a3a3a3;
@@ -26,7 +98,8 @@
     --accent-blue-border: #444444;
 
     --status-critical: #ffffff;
-    --status-critical-bg: #171717;
+    --status-critical-bg: #ffffff;
+    --status-critical-text: #000000;
     --status-critical-border: #ffffff;
 
     --status-warning: #a3a3a3;
@@ -37,9 +110,30 @@
     --status-success-bg: #141414;
     --status-success-border: #737373;
 
-    /* Typography */
-    --font-sans: 'Plus Jakarta Sans', -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
-    --font-mono: 'JetBrains Mono', ui-monospace, SFMono-Regular, Menlo, monospace;
+    /* Interactive components */
+    --btn-primary-bg: #ffffff;
+    --btn-primary-text: #000000;
+    --btn-primary-border: #ffffff;
+    --btn-primary-hover: #d4d4d4;
+
+    --btn-secondary-bg: #141414;
+    --btn-secondary-text: #ffffff;
+    --btn-secondary-border: #333333;
+    --btn-secondary-hover: #222222;
+
+    --badge-tag-bg: #141414;
+    --badge-tag-text: #ffffff;
+    --badge-tag-border: #333333;
+
+    --badge-inverted-bg: #ffffff;
+    --badge-inverted-text: #000000;
+    --badge-inverted-border: #ffffff;
+
+    --card-shadow: none;
+    --modal-backdrop-bg: rgba(0, 0, 0, 0.85);
+
+    --diff-box-bg: #050505;
+    --diff-box-text: #e5e5e5;
 }
 
 * {
@@ -55,6 +149,7 @@ body {
     line-height: 1.5;
     min-height: 100vh;
     -webkit-font-smoothing: antialiased;
+    transition: background-color 0.15s ease, color 0.15s ease;
 }
 
 /* Base Panel / Card */
@@ -63,7 +158,8 @@ body {
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 20px;
-    transition: border-color 0.15s ease;
+    box-shadow: var(--card-shadow);
+    transition: border-color 0.15s ease, background-color 0.15s ease;
 }
 
 .panel:hover {
@@ -83,6 +179,7 @@ body {
     position: sticky;
     top: 0;
     z-index: 100;
+    transition: background-color 0.15s ease, border-color 0.15s ease;
 }
 
 .header-left {
@@ -95,12 +192,12 @@ body {
     width: 32px;
     height: 32px;
     border-radius: 6px;
-    background: #141414;
-    border: 1px solid #333333;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-medium);
     display: flex;
     align-items: center;
     justify-content: center;
-    color: #ffffff;
+    color: var(--text-primary);
     font-size: 15px;
 }
 
@@ -111,6 +208,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
+    color: var(--text-primary);
 }
 
 .brand-title .tag {
@@ -118,9 +216,9 @@ body {
     font-family: var(--font-mono);
     padding: 2px 6px;
     border-radius: 4px;
-    background: #171717;
-    color: #ffffff;
-    border: 1px solid #444444;
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    border: 1px solid var(--border-medium);
     font-weight: 600;
 }
 
@@ -138,10 +236,10 @@ body {
     display: flex;
     align-items: center;
     gap: 8px;
-    background: #0a0a0a;
+    background: var(--bg-surface-elevated);
     padding: 6px 12px;
     border-radius: 6px;
-    border: 1px solid var(--border-medium);
+    border: 1px solid var(--border-subtle);
 }
 
 .scenario-select-wrapper label {
@@ -156,13 +254,13 @@ body {
     color: var(--text-primary);
     font-family: var(--font-sans);
     font-size: 13px;
-    font-weight: 500;
+    font-weight: 600;
     outline: none;
     cursor: pointer;
 }
 
 .styled-select option {
-    background: var(--bg-surface-elevated);
+    background: var(--bg-surface);
     color: var(--text-primary);
 }
 
@@ -188,40 +286,40 @@ body {
 }
 
 .btn-secondary {
-    background: #141414;
-    color: #ffffff;
-    border-color: #333333;
+    background: var(--btn-secondary-bg);
+    color: var(--btn-secondary-text);
+    border-color: var(--btn-secondary-border);
 }
 
 .btn-secondary:hover {
-    background: #222222;
-    border-color: #555555;
-    color: #ffffff;
+    background: var(--btn-secondary-hover);
+    border-color: var(--border-dark);
+    color: var(--text-primary);
 }
 
 .btn-primary {
-    background: #ffffff;
-    color: #000000;
+    background: var(--btn-primary-bg);
+    color: var(--btn-primary-text);
     font-weight: 700;
-    border-color: #ffffff;
+    border-color: var(--btn-primary-border);
 }
 
 .btn-primary:hover {
-    background: #d4d4d4;
-    border-color: #d4d4d4;
-    color: #000000;
+    background: var(--btn-primary-hover);
+    border-color: var(--btn-primary-hover);
+    color: var(--btn-primary-text);
 }
 
 .btn-outline {
     background: transparent;
-    color: #ffffff;
-    border-color: #404040;
+    color: var(--text-primary);
+    border-color: var(--border-medium);
 }
 
 .btn-outline:hover {
-    border-color: #ffffff;
-    background: #141414;
-    color: #ffffff;
+    border-color: var(--border-dark);
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
 }
 
 .btn-sm {
@@ -263,8 +361,8 @@ body {
 }
 
 .nav-tab-btn.active {
-    color: #ffffff;
-    border-bottom-color: #ffffff;
+    color: var(--text-primary);
+    border-bottom-color: var(--border-dark);
 }
 
 .nav-tab-btn .badge-pill {
@@ -272,15 +370,15 @@ body {
     font-family: var(--font-mono);
     padding: 1px 6px;
     border-radius: 10px;
-    background: #171717;
+    background: var(--bg-surface-elevated);
     color: var(--text-muted);
-    border: 1px solid #2b2b2b;
+    border: 1px solid var(--border-subtle);
 }
 
 .nav-tab-btn.active .badge-pill {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
+    background: var(--border-dark);
+    color: var(--bg-surface);
+    border-color: var(--border-dark);
     font-weight: 700;
 }
 
@@ -307,13 +405,14 @@ body {
 }
 
 /* ==========================================================================
-   CI/CD Pipeline Tracker (Monochrome)
+   CI/CD Pipeline Tracker
    ========================================================================== */
 .pipeline-card {
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 8px;
     padding: 16px 20px;
+    box-shadow: var(--card-shadow);
 }
 
 .pipeline-meta-row {
@@ -336,13 +435,13 @@ body {
     width: 8px;
     height: 8px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--text-primary);
 }
 
 .repo-badge {
     font-family: var(--font-mono);
     color: var(--text-secondary);
-    background: #141414;
+    background: var(--bg-surface-elevated);
     padding: 2px 8px;
     border-radius: 4px;
     border: 1px solid var(--border-subtle);
@@ -361,26 +460,26 @@ body {
     align-items: center;
     gap: 10px;
     padding: 8px 14px;
-    background: #0d0d0d;
+    background: var(--bg-surface-elevated);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
     min-width: 170px;
 }
 
 .stage-node.passed {
-    border-color: #444444;
-    background: #0d0d0d;
+    border-color: var(--border-medium);
+    background: var(--bg-surface);
 }
 
 .stage-node.blocked {
-    border-color: #ffffff;
-    background: #1a1a1a;
+    border-color: var(--border-dark);
+    background: var(--bg-surface-elevated);
 }
 
 .stage-node.review {
-    border-color: #666666;
+    border-color: var(--border-highlight);
     border-style: dashed;
-    background: #121212;
+    background: var(--bg-surface);
 }
 
 .stage-icon {
@@ -389,15 +488,15 @@ body {
 }
 
 .stage-node.passed .stage-icon {
-    color: #ffffff;
+    color: var(--text-secondary);
 }
 
 .stage-node.blocked .stage-icon {
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .stage-node.review .stage-icon {
-    color: #a3a3a3;
+    color: var(--text-muted);
 }
 
 .stage-details {
@@ -423,7 +522,7 @@ body {
 }
 
 /* ==========================================================================
-   Policy Decision & Metric Grid (Monochrome High Contrast)
+   Policy Decision & Metric Grid
    ========================================================================== */
 .policy-gate-banner {
     display: flex;
@@ -433,24 +532,25 @@ body {
     border-radius: 8px;
     background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
+    box-shadow: var(--card-shadow);
 }
 
 .policy-gate-banner.blocked {
-    border-color: #ffffff;
-    border-left: 5px solid #ffffff;
-    background: #0f0f0f;
+    border-color: var(--border-dark);
+    border-left: 6px solid var(--border-dark);
+    background: var(--bg-surface);
 }
 
 .policy-gate-banner.review {
-    border-color: #666666;
-    border-left: 5px dashed #888888;
-    background: #0f0f0f;
+    border-color: var(--border-highlight);
+    border-left: 6px dashed var(--border-highlight);
+    background: var(--bg-surface);
 }
 
 .policy-gate-banner.passed {
-    border-color: #444444;
-    border-left: 5px solid #555555;
-    background: #0a0a0a;
+    border-color: var(--border-subtle);
+    border-left: 6px solid var(--border-medium);
+    background: var(--bg-surface);
 }
 
 .gate-text-col {
@@ -462,7 +562,7 @@ body {
 .gate-headline {
     font-size: 16px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .gate-description {
@@ -481,22 +581,22 @@ body {
 }
 
 .gate-badge-pill.blocked {
-    background: #ffffff;
-    color: #000000;
-    border: 1px solid #ffffff;
+    background: var(--badge-inverted-bg);
+    color: var(--badge-inverted-text);
+    border: 1px solid var(--badge-inverted-border);
     font-weight: 800;
 }
 
 .gate-badge-pill.review {
-    background: #1a1a1a;
-    color: #ffffff;
-    border: 1px dashed #737373;
+    background: var(--bg-surface-elevated);
+    color: var(--text-primary);
+    border: 1px dashed var(--border-highlight);
 }
 
 .gate-badge-pill.passed {
     background: transparent;
-    color: #ffffff;
-    border: 1px solid #737373;
+    color: var(--text-primary);
+    border: 1px solid var(--border-dark);
 }
 
 .metrics-summary-grid {
@@ -513,6 +613,7 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: var(--card-shadow);
 }
 
 .metric-label {
@@ -545,9 +646,10 @@ body {
 }
 
 .progress-track {
-    height: 4px;
-    background: #1c1c1c;
-    border-radius: 2px;
+    height: 5px;
+    background: var(--bg-surface-elevated);
+    border: 1px solid var(--border-subtle);
+    border-radius: 3px;
     overflow: hidden;
     margin-top: 4px;
 }
@@ -558,10 +660,10 @@ body {
     transition: width 0.3s ease;
 }
 
-.fill-critical { background: #ffffff; }
-.fill-warning { background: #888888; }
-.fill-success { background: #444444; }
-.fill-blue { background: #cccccc; }
+.fill-critical { background: var(--border-dark); }
+.fill-warning { background: var(--border-highlight); }
+.fill-success { background: var(--border-medium); }
+.fill-blue { background: var(--border-dark); }
 
 /* ==========================================================================
    Two-Column Grid & Technical Cards
@@ -593,7 +695,7 @@ body {
     display: flex;
     align-items: center;
     gap: 6px;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .badge-tag {
@@ -601,27 +703,27 @@ body {
     font-family: var(--font-mono);
     padding: 2px 6px;
     border-radius: 4px;
-    background: #141414;
-    color: #ffffff;
-    border: 1px solid #333333;
+    background: var(--badge-tag-bg);
+    color: var(--badge-tag-text);
+    border: 1px solid var(--badge-tag-border);
 }
 
 .badge-tag-blue {
-    background: #1c1c1c;
-    color: #ffffff;
-    border-color: #555555;
+    background: var(--badge-tag-bg);
+    color: var(--badge-tag-text);
+    border-color: var(--badge-tag-border);
 }
 
 .badge-tag-green {
-    background: #1c1c1c;
-    color: #ffffff;
-    border-color: #555555;
+    background: var(--badge-tag-bg);
+    color: var(--badge-tag-text);
+    border-color: var(--badge-tag-border);
 }
 
 .badge-tag-inverted {
-    background: #ffffff;
-    color: #000000;
-    border-color: #ffffff;
+    background: var(--badge-inverted-bg);
+    color: var(--badge-inverted-text);
+    border-color: var(--badge-inverted-border);
     font-weight: 800;
 }
 
@@ -631,7 +733,7 @@ body {
 .narrative-tabs {
     display: flex;
     gap: 4px;
-    background: #000000;
+    background: var(--bg-surface-elevated);
     padding: 3px;
     border-radius: 6px;
     border: 1px solid var(--border-subtle);
@@ -650,9 +752,10 @@ body {
 }
 
 .narrative-toggle-btn.active {
-    background: #1c1c1c;
-    color: #ffffff;
-    border: 1px solid #333333;
+    background: var(--bg-surface);
+    color: var(--text-primary);
+    border: 1px solid var(--border-subtle);
+    box-shadow: 0 1px 2px rgba(0, 0, 0, 0.05);
 }
 
 .narrative-body-text {
@@ -667,7 +770,7 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 8px 12px;
-    background: #000000;
+    background: var(--bg-surface-elevated);
     border-radius: 6px;
     border: 1px solid var(--border-subtle);
     margin-bottom: 6px;
@@ -684,8 +787,8 @@ body {
 
 .driver-shap-impact {
     font-family: var(--font-mono);
-    font-weight: 700;
-    color: #ffffff;
+    font-weight: 800;
+    color: var(--text-primary);
 }
 
 /* ==========================================================================
@@ -696,7 +799,7 @@ body {
     align-items: center;
     gap: 12px;
     padding: 14px;
-    background: #070707;
+    background: var(--bg-surface-subtle);
     border-radius: 6px;
     border: 1px solid var(--border-subtle);
     overflow-x: auto;
@@ -707,16 +810,17 @@ body {
     display: flex;
     flex-direction: column;
     padding: 8px 12px;
-    background: #111111;
+    background: var(--bg-surface);
     border: 1px solid var(--border-medium);
     border-radius: 6px;
     min-width: 140px;
+    box-shadow: var(--card-shadow);
 }
 
-.ast-node-step.source { border-color: #666666; background: #141414; }
-.ast-node-step.alias { border-color: #444444; border-style: dashed; background: #0c0c0c; }
-.ast-node-step.sanitizer { border-color: #888888; background: #141414; }
-.ast-node-step.sink { border-color: #ffffff; border-width: 2px; background: #1a1a1a; }
+.ast-node-step.source { border-color: var(--border-highlight); }
+.ast-node-step.alias { border-color: var(--border-medium); border-style: dashed; }
+.ast-node-step.sanitizer { border-color: var(--border-dark); }
+.ast-node-step.sink { border-color: var(--border-dark); border-width: 2px; }
 
 .step-label {
     font-size: 9px;
@@ -738,7 +842,7 @@ body {
 }
 
 .finding-card {
-    background: #0d0d0d;
+    background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
     padding: 14px;
@@ -746,16 +850,17 @@ body {
     display: flex;
     flex-direction: column;
     gap: 8px;
+    box-shadow: var(--card-shadow);
 }
 
 .finding-card.critical {
-    border-left: 4px solid #ffffff;
-    border-color: #383838;
+    border-left: 4px solid var(--border-dark);
+    border-color: var(--border-medium);
 }
 
 .finding-card.high {
-    border-left: 4px dashed #737373;
-    border-color: #2b2b2b;
+    border-left: 4px dashed var(--border-highlight);
+    border-color: var(--border-subtle);
 }
 
 .finding-header-row {
@@ -785,7 +890,7 @@ body {
 }
 
 /* ==========================================================================
-   Data Tables (Monochrome Minimalist)
+   Data Tables
    ========================================================================== */
 .table-container {
     width: 100%;
@@ -801,7 +906,7 @@ body {
 .minimal-table th {
     text-align: left;
     padding: 10px 14px;
-    background: #000000;
+    background: var(--bg-surface-elevated);
     color: var(--text-muted);
     font-weight: 600;
     font-family: var(--font-mono);
@@ -817,7 +922,7 @@ body {
 }
 
 .minimal-table tr:hover td {
-    background: #111111;
+    background: var(--bg-surface-subtle);
 }
 
 .minimal-table td b {
@@ -828,11 +933,12 @@ body {
    Code Diff View
    ========================================================================== */
 .diff-card {
-    background: #0a0a0a;
+    background: var(--bg-surface);
     border: 1px solid var(--border-subtle);
     border-radius: 6px;
     margin-bottom: 14px;
     overflow: hidden;
+    box-shadow: var(--card-shadow);
 }
 
 .diff-header {
@@ -840,11 +946,11 @@ body {
     justify-content: space-between;
     align-items: center;
     padding: 10px 14px;
-    background: #121212;
+    background: var(--bg-surface-elevated);
     border-bottom: 1px solid var(--border-subtle);
     font-size: 12px;
     font-weight: 600;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .diff-box {
@@ -854,9 +960,9 @@ body {
     line-height: 1.6;
     overflow-x: auto;
     white-space: pre-wrap;
-    background: #050505;
-    color: #e5e5e5;
-    border-top: 1px solid #1a1a1a;
+    background: var(--diff-box-bg);
+    color: var(--diff-box-text);
+    border-top: 1px solid var(--border-subtle);
 }
 
 /* ==========================================================================
@@ -883,7 +989,7 @@ body {
 .slider-val-badge {
     font-family: var(--font-mono);
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 input[type="range"] {
@@ -891,7 +997,7 @@ input[type="range"] {
     appearance: none;
     width: 100%;
     height: 4px;
-    background: #262626;
+    background: var(--border-medium);
     border-radius: 2px;
     outline: none;
 }
@@ -902,13 +1008,13 @@ input[type="range"]::-webkit-slider-thumb {
     width: 14px;
     height: 14px;
     border-radius: 50%;
-    background: #ffffff;
+    background: var(--border-dark);
     cursor: pointer;
-    border: 2px solid #000000;
+    border: 2px solid var(--bg-surface);
 }
 
 /* ==========================================================================
-   Modal Dialogs (Monochrome Minimalist)
+   Modal Dialogs
    ========================================================================== */
 .modal-backdrop {
     position: fixed;
@@ -916,8 +1022,8 @@ input[type="range"]::-webkit-slider-thumb {
     left: 0;
     width: 100%;
     height: 100%;
-    background: rgba(0, 0, 0, 0.85);
-    backdrop-filter: blur(8px);
+    background: var(--modal-backdrop-bg);
+    backdrop-filter: blur(4px);
     display: flex;
     align-items: center;
     justify-content: center;
@@ -937,7 +1043,7 @@ input[type="range"]::-webkit-slider-thumb {
     max-height: 85vh;
     display: flex;
     flex-direction: column;
-    box-shadow: 0 25px 50px -12px rgba(0, 0, 0, 0.9);
+    box-shadow: 0 20px 25px -5px rgba(0, 0, 0, 0.2);
 }
 
 .modal-head {
@@ -951,7 +1057,7 @@ input[type="range"]::-webkit-slider-thumb {
 .modal-head h3 {
     font-size: 15px;
     font-weight: 700;
-    color: #ffffff;
+    color: var(--text-primary);
 }
 
 .modal-close-btn {
@@ -980,10 +1086,10 @@ input[type="range"]::-webkit-slider-thumb {
 }
 
 /* Utilities (Monochrome Pure) */
-.text-critical { color: #ffffff; font-weight: 700; }
-.text-warning { color: #a3a3a3; }
-.text-success { color: #d4d4d4; }
-.text-blue { color: #ffffff; }
-.text-white { color: #ffffff; }
+.text-critical { color: var(--text-primary); font-weight: 700; }
+.text-warning { color: var(--text-muted); }
+.text-success { color: var(--text-secondary); }
+.text-blue { color: var(--text-primary); }
+.text-white { color: var(--text-primary); }
 .text-muted { color: var(--text-muted); }
 .font-mono { font-family: var(--font-mono); }

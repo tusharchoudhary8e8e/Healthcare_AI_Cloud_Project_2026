@@ -1,5 +1,5 @@
 <!DOCTYPE html>
-<html lang="en">
+<html lang="en" data-theme="white">
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/styles.css?v=4.0">
+    <link rel="stylesheet" href="/static/styles.css?v=5.0">
 </head>
 <body>
     <!-- Top Minimalist App Header -->
@@ -41,6 +41,9 @@
         </div>
 
         <div class="header-right">
+            <button id="btnThemeToggle" class="btn btn-secondary" title="Switch Theme">
+                <i id="themeToggleIcon" class="fa-solid fa-moon"></i> <span id="themeToggleText">White & Black</span>
+            </button>
             <button id="btnDatasets" class="btn btn-secondary">
                 <i class="fa-solid fa-database text-muted"></i> Datasets (1,656 Breaches)
             </button>
@@ -753,6 +756,6 @@ docker build -t aegismed . && docker run -d -p 80:8000 aegismed</pre>
     </div>
 
     <!-- App Controller Script -->
-    <script src="/static/app.js?v=4.0"></script>
+    <script src="/static/app.js?v=5.0"></script>
 </body>
 </html>
