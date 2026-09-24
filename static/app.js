@@ -274,13 +274,13 @@ function renderDashboard(data) {
             const row = document.createElement("div");
             row.className = "driver-item-row";
             row.innerHTML = `
-                <span class="driver-name"><i class="fa-solid fa-triangle-exclamation text-critical"></i> ${d.feature_name} (Val: ${d.feature_value})</span>
+                <span class="driver-name"><i class="fa-solid fa-triangle-exclamation text-muted"></i> ${d.feature_name} (Val: ${d.feature_value})</span>
                 <span class="driver-shap-impact">+${d.shap_value.toFixed(1)} pts</span>
             `;
             driversContainer.appendChild(row);
         });
     } else {
-        driversContainer.innerHTML = `<div class="driver-item-row text-success"><i class="fa-solid fa-check"></i> Codebase complies with all baseline security thresholds.</div>`;
+        driversContainer.innerHTML = `<div class="driver-item-row text-white"><i class="fa-solid fa-check text-muted" style="margin-right:6px;"></i> Codebase complies with all baseline security thresholds.</div>`;
     }
 
     const compActionList = document.getElementById("complianceActionList");
@@ -292,7 +292,7 @@ function renderDashboard(data) {
             compActionList.appendChild(li);
         });
     } else {
-        compActionList.innerHTML = `<li style="color:#34d399;">No active non-compliance items. All HIPAA and FDA controls satisfied.</li>`;
+        compActionList.innerHTML = `<li style="color:var(--text-secondary);"><i class="fa-solid fa-check text-muted" style="margin-right:6px;"></i> No active non-compliance items. All HIPAA and FDA controls satisfied.</li>`;
     }
 
     // =========================================================================
@@ -326,9 +326,9 @@ function renderAstFindings(findings) {
 
     if (!findings || findings.length === 0) {
         container.innerHTML = `
-            <div class="panel" style="padding: 16px; text-align: center; color: var(--status-success);">
-                <i class="fa-solid fa-circle-check" style="font-size: 20px; margin-bottom: 6px;"></i>
-                <div>Zero AST taint flow findings detected. All patient data paths are cryptographically enclosed.</div>
+            <div class="panel" style="padding: 16px; text-align: center; border-color: var(--border-medium);">
+                <i class="fa-solid fa-circle-check text-muted" style="font-size: 20px; margin-bottom: 6px;"></i>
+                <div style="color: var(--text-secondary);">Zero AST taint flow findings detected. All patient data paths are cryptographically enclosed.</div>
             </div>
         `;
         return;
@@ -344,7 +344,7 @@ function renderAstFindings(findings) {
                     <span class="badge-tag" style="margin-right: 6px;">${f.id || 'AST-FINDING'}</span>
                     <span class="finding-title-text">${f.title}</span>
                 </div>
-                <span class="badge-tag ${isCrit ? 'text-critical' : 'text-warning'}">${f.severity}</span>
+                <span class="badge-tag ${isCrit ? 'badge-tag-inverted' : ''}">${f.severity}</span>
             </div>
             <div class="finding-detail-text">${f.detail || 'Dataflow taint reaches insecure execution sink.'}</div>
             <div class="finding-footer-meta">
@@ -367,8 +367,8 @@ function renderShapChart(attributions) {
 
     const labels = attributions.map(a => a.feature_name);
     const dataValues = attributions.map(a => a.shap_value);
-    const bgColors = attributions.map(a => a.shap_value >= 0 ? "rgba(248, 113, 113, 0.75)" : "rgba(52, 211, 153, 0.75)");
-    const borderColors = attributions.map(a => a.shap_value >= 0 ? "#f87171" : "#34d399");
+    const bgColors = attributions.map(a => a.shap_value >= 0 ? "rgba(255, 255, 255, 0.9)" : "rgba(255, 255, 255, 0.25)");
+    const borderColors = attributions.map(a => a.shap_value >= 0 ? "#ffffff" : "#737373");
 
     shapChartInstance = new Chart(ctx, {
         type: "bar",
@@ -400,12 +400,12 @@ function renderShapChart(attributions) {
             },
             scales: {
                 x: {
-                    grid: { color: "rgba(255, 255, 255, 0.05)" },
-                    ticks: { color: "#94a3b8", font: { family: "'JetBrains Mono', monospace", size: 10 } }
+                    grid: { color: "rgba(255, 255, 255, 0.08)" },
+                    ticks: { color: "#a3a3a3", font: { family: "'JetBrains Mono', monospace", size: 10 } }
                 },
                 y: {
                     grid: { display: false },
-                    ticks: { color: "#cbd5e1", font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 600 } }
+                    ticks: { color: "#ffffff", font: { family: "'Plus Jakarta Sans', sans-serif", size: 11, weight: 600 } }
                 }
             }
         }
@@ -417,7 +417,7 @@ function renderFindingLevelShapley(findingShapley) {
     tbody.innerHTML = "";
 
     if (!findingShapley || !findingShapley.finding_attributions || findingShapley.finding_attributions.length === 0) {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:16px; color:#34d399;"><i class="fa-solid fa-circle-check"></i> Zero excess finding risk. Baseline risk only.</td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center; padding:16px; color:var(--text-secondary);"><i class="fa-solid fa-circle-check text-muted" style="margin-right:6px;"></i> Zero excess finding risk. Baseline risk only.</td></tr>`;
         document.getElementById("totalExcessRiskVal").textContent = "Total Excess Finding Risk: 0.0 pts";
         return;
     }
@@ -432,9 +432,9 @@ function renderFindingLevelShapley(findingShapley) {
         tr.innerHTML = `
             <td class="font-mono"><b>${f.finding_id}</b></td>
             <td><b>${f.finding_type}</b></td>
-            <td><span class="badge-tag ${f.severity === 'CRITICAL' ? 'text-critical' : 'text-warning'}">${f.severity}</span></td>
+            <td><span class="badge-tag ${f.severity === 'CRITICAL' ? 'badge-tag-inverted' : ''}">${f.severity}</span></td>
             <td>${f.statutory_clause}</td>
-            <td style="text-align: right;" class="font-mono text-critical"><b>+${phi.toFixed(2)} pts</b></td>
+            <td style="text-align: right;" class="font-mono"><b>+${phi.toFixed(2)} pts</b></td>
             <td style="text-align: right;" class="font-mono text-muted">${pct}%</td>
         `;
         tbody.appendChild(tr);
@@ -450,7 +450,7 @@ function renderFindingLevelShapley(findingShapley) {
             box.style.padding = "10px 14px";
             box.innerHTML = `
                 <div style="font-size: 11px; font-weight: 700; color: var(--text-primary); margin-bottom: 4px;">${clause}</div>
-                <div class="font-mono text-critical" style="font-size: 15px; font-weight: 800;">+${val.toFixed(1)} pts</div>
+                <div class="font-mono text-white" style="font-size: 15px; font-weight: 800;">+${val.toFixed(1)} pts</div>
             `;
             clauseContainer.appendChild(box);
         }
@@ -462,7 +462,7 @@ function renderMilpPlan(counterfactuals) {
     box.innerHTML = "";
 
     if (!counterfactuals || counterfactuals.length === 0) {
-        box.innerHTML = `<p style="color: var(--status-success);"><i class="fa-solid fa-circle-check"></i> Pipeline is in an approved state. No MILP optimization required.</p>`;
+        box.innerHTML = `<p style="color: var(--text-secondary);"><i class="fa-solid fa-circle-check text-muted" style="margin-right:6px;"></i> Pipeline is in an approved state. No MILP optimization required.</p>`;
         return;
     }
 
@@ -471,7 +471,7 @@ function renderMilpPlan(counterfactuals) {
 
     const badge = document.getElementById("closedLoopBadge");
     if (isVerified) {
-        badge.className = "badge-tag badge-tag-green";
+        badge.className = "badge-tag badge-tag-inverted";
         badge.innerHTML = `<i class="fa-solid fa-circle-check"></i> Closed-Loop AST Re-Scan Verified: Gate Passes`;
     } else {
         badge.className = "badge-tag";
@@ -493,12 +493,12 @@ function renderMilpPlan(counterfactuals) {
             <div class="panel" style="padding: 12px; background: var(--bg-base); display: flex; align-items: center; justify-content: space-around;">
                 <div style="text-align: center;">
                     <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Current Score</div>
-                    <div class="font-mono text-critical" style="font-size: 20px; font-weight: 800;">${currentOriginalScore.toFixed(1)}</div>
+                    <div class="font-mono text-white" style="font-size: 20px; font-weight: 800;">${currentOriginalScore.toFixed(1)}</div>
                 </div>
                 <i class="fa-solid fa-arrow-right text-muted"></i>
                 <div style="text-align: center;">
                     <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Projected Score</div>
-                    <div class="font-mono text-success" style="font-size: 20px; font-weight: 800;">${milpCf.new_risk_score.toFixed(1)}</div>
+                    <div class="font-mono text-white" style="font-size: 20px; font-weight: 800;">${milpCf.new_risk_score.toFixed(1)}</div>
                 </div>
                 <div style="text-align: center;">
                     <div style="font-size: 10px; color: var(--text-muted); text-transform: uppercase;">Projected Gate</div>
@@ -513,8 +513,8 @@ function renderMilpPlan(counterfactuals) {
         <div style="display: flex; flex-direction: column; gap: 6px;">
             ${(milpCf.action ? (typeof milpCf.action === "string" ? milpCf.action.split("; ") : milpCf.action) : []).map(a => `
                 <div class="panel" style="padding: 10px 14px; background: var(--bg-base); display: flex; align-items: center; justify-content: space-between; font-size: 12px;">
-                    <span><i class="fa-solid fa-check text-success" style="margin-right: 8px;"></i> ${a}</span>
-                    <span class="badge-tag badge-tag-blue font-mono">z<sub>j</sub> = 1 (Active)</span>
+                    <span><i class="fa-solid fa-check text-muted" style="margin-right: 8px;"></i> ${a}</span>
+                    <span class="badge-tag font-mono">z<sub>j</sub> = 1 (Active)</span>
                 </div>
             `).join('')}
         </div>
@@ -567,10 +567,11 @@ function updateWhatIfDisplay(newScore, gateDecision) {
     const deltaEl = document.getElementById("simulatedRiskDelta");
     if (delta > 0) {
         deltaEl.textContent = `-${delta.toFixed(1)} pts (Improved)`;
-        deltaEl.style.color = "var(--status-success)";
+        deltaEl.style.color = "var(--text-secondary)";
     } else if (delta < 0) {
         deltaEl.textContent = `+${Math.abs(delta).toFixed(1)} pts (Higher Risk)`;
-        deltaEl.style.color = "var(--status-critical)";
+        deltaEl.style.color = "#ffffff";
+        deltaEl.style.fontWeight = "700";
     } else {
         deltaEl.textContent = "0.0 pts";
         deltaEl.style.color = "var(--text-muted)";
@@ -592,7 +593,7 @@ function renderRemediations(remediations) {
     container.innerHTML = "";
 
     if (!remediations || remediations.length === 0) {
-        container.innerHTML = "<p style='font-size:12px;color:var(--status-success);'><i class='fa-solid fa-circle-check'></i> No code modifications required. All safeguards are verified.</p>";
+        container.innerHTML = "<p style='font-size:12px;color:var(--text-secondary);'><i class='fa-solid fa-circle-check text-muted' style='margin-right:6px;'></i> No code modifications required. All safeguards are verified.</p>";
         return;
     }
 
@@ -601,7 +602,7 @@ function renderRemediations(remediations) {
         card.className = "diff-card";
         card.innerHTML = `
             <div class="diff-header">
-                <div><i class="fa-solid fa-shield-halved text-blue" style="margin-right: 6px;"></i> ${rem.title}</div>
+                <div><i class="fa-solid fa-shield-halved text-muted" style="margin-right: 6px;"></i> ${rem.title}</div>
                 <span class="badge-tag">${rem.impact}</span>
             </div>
             <div style="padding: 10px 14px; font-size: 12px; color: var(--text-secondary); background: var(--bg-surface); border-bottom: 1px solid var(--border-subtle);">
@@ -625,13 +626,13 @@ function renderComplianceTable(compliance) {
                 <td><span class="badge-tag font-mono">${v.control_id}</span></td>
                 <td>${v.title}</td>
                 <td>${v.reason}</td>
-                <td><span class="badge-tag ${v.severity === 'CRITICAL' ? 'text-critical' : 'text-warning'}">${v.severity}</span></td>
-                <td class="font-mono text-blue">${v.file}:${v.line}</td>
+                <td><span class="badge-tag ${v.severity === 'CRITICAL' ? 'badge-tag-inverted' : ''}">${v.severity}</span></td>
+                <td class="font-mono text-white">${v.file}:${v.line}</td>
             `;
             tbody.appendChild(tr);
         });
     } else {
-        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--status-success);padding:18px;"><i class="fa-solid fa-circle-check"></i> <b>All HIPAA §164.312 and FDA SaMD Safeguards PASSED. Code is Compliant.</b></td></tr>`;
+        tbody.innerHTML = `<tr><td colspan="6" style="text-align:center;color:var(--text-secondary);padding:18px;"><i class="fa-solid fa-circle-check text-muted" style="margin-right:6px;"></i> <b>All HIPAA §164.312 and FDA SaMD Safeguards PASSED. Code is Compliant.</b></td></tr>`;
     }
 }
 

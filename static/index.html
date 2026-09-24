@@ -11,7 +11,7 @@
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
     <!-- Chart.js -->
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
-    <link rel="stylesheet" href="/static/styles.css?v=3.0">
+    <link rel="stylesheet" href="/static/styles.css?v=4.0">
 </head>
 <body>
     <!-- Top Minimalist App Header -->
@@ -30,7 +30,7 @@
 
         <div class="header-center">
             <div class="scenario-select-wrapper">
-                <label for="scenarioSelect"><i class="fa-solid fa-microscope"></i> Target Scenario:</label>
+                <label for="scenarioSelect"><i class="fa-solid fa-microscope text-muted"></i> Target Scenario:</label>
                 <select id="scenarioSelect" class="styled-select">
                     <option value="ehr-patient-portal">EHR Patient Portal (High Risk: Unencrypted PHI & SQLi)</option>
                     <option value="smart-fhir-gateway">SMART-on-FHIR Gateway (Critical: Async Scope & Log Leak)</option>
@@ -42,10 +42,10 @@
 
         <div class="header-right">
             <button id="btnDatasets" class="btn btn-secondary">
-                <i class="fa-solid fa-database text-blue"></i> Datasets (1,656 Breaches)
+                <i class="fa-solid fa-database text-muted"></i> Datasets (1,656 Breaches)
             </button>
             <button id="btnAwsArch" class="btn btn-secondary">
-                <i class="fa-brands fa-aws text-warning"></i> AWS Architecture
+                <i class="fa-brands fa-aws text-muted"></i> AWS Architecture
             </button>
             <button id="btnExportAudit" class="btn btn-secondary">
                 <i class="fa-solid fa-file-pdf"></i> Export Audit Certificate
@@ -184,10 +184,10 @@
                 <div class="metric-box">
                     <div class="metric-label">
                         <span>Breach Probability</span>
-                        <i class="fa-solid fa-radiation text-warning"></i>
+                        <i class="fa-solid fa-radiation text-muted"></i>
                     </div>
                     <div class="metric-value-row">
-                        <span class="metric-big-num text-critical" id="breachProbVal">84.2%</span>
+                        <span class="metric-big-num" id="breachProbVal">84.2%</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill fill-critical" id="breachProgressBar" style="width: 84.2%;"></div>
@@ -198,10 +198,10 @@
                 <div class="metric-box">
                     <div class="metric-label">
                         <span>Compliance Penalty</span>
-                        <i class="fa-solid fa-notes-medical text-blue"></i>
+                        <i class="fa-solid fa-notes-medical text-muted"></i>
                     </div>
                     <div class="metric-value-row">
-                        <span class="metric-big-num text-warning" id="compliancePenaltyVal">72.0</span>
+                        <span class="metric-big-num" id="compliancePenaltyVal">72.0</span>
                     </div>
                     <div class="progress-track">
                         <div class="progress-fill fill-warning" id="complianceProgressBar" style="width: 72%;"></div>
@@ -212,10 +212,10 @@
                 <div class="metric-box">
                     <div class="metric-label">
                         <span>Model Verification</span>
-                        <span class="badge-tag badge-tag-green">VERIFIED</span>
+                        <span class="badge-tag badge-tag-inverted">VERIFIED</span>
                     </div>
                     <div class="metric-value-row">
-                        <span class="metric-big-num text-blue" id="modelCvR2Val">0.962</span>
+                        <span class="metric-big-num" id="modelCvR2Val">0.962</span>
                         <span class="metric-sub">5-Fold R²</span>
                     </div>
                     <div class="progress-track">
@@ -231,7 +231,7 @@
                 <div class="panel">
                     <div class="card-header-bar">
                         <div class="card-title-group">
-                            <span class="card-title"><i class="fa-solid fa-triangle-exclamation text-critical"></i> Top Root-Cause Risk Drivers</span>
+                            <span class="card-title"><i class="fa-solid fa-triangle-exclamation text-muted"></i> Top Root-Cause Risk Drivers</span>
                             <span class="badge-tag">Tree-SHAP Attributions</span>
                         </div>
                     </div>
@@ -244,7 +244,7 @@
                 <div class="panel">
                     <div class="card-header-bar">
                         <div class="card-title-group">
-                            <span class="card-title"><i class="fa-solid fa-comment-dots text-blue"></i> Multi-Stakeholder Assessment</span>
+                            <span class="card-title"><i class="fa-solid fa-comment-dots text-muted"></i> Multi-Stakeholder Assessment</span>
                         </div>
                         <div class="narrative-tabs">
                             <button class="narrative-toggle-btn active" id="btnDevView"><i class="fa-solid fa-code"></i> Developer Brief</button>
@@ -273,8 +273,8 @@
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-sitemap text-blue"></i> AST Semantic Taint-Flow Architecture</span>
-                        <span class="badge-tag badge-tag-blue">Python ast.NodeVisitor</span>
+                        <span class="card-title"><i class="fa-solid fa-sitemap text-muted"></i> AST Semantic Taint-Flow Architecture</span>
+                        <span class="badge-tag">Python ast.NodeVisitor</span>
                     </div>
                     <span class="font-mono text-muted" style="font-size: 11px;">Safe Harbor 18 Ontology + Variable Aliasing + Strict Sanitizers</span>
                 </div>
@@ -321,7 +321,7 @@
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-terminal text-blue"></i> Live Clinical Code Scanner & AST Tester</span>
+                        <span class="card-title"><i class="fa-solid fa-terminal text-muted"></i> Live Clinical Code Scanner & AST Tester</span>
                         <span class="badge-tag">Custom Ingestion</span>
                     </div>
                     <button id="btnScanCustomCode" class="btn btn-primary btn-sm">
@@ -360,19 +360,19 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
                         </div>
                         <div style="display: flex; flex-direction: column; gap: 8px;">
                             <div class="panel" style="padding: 10px; font-size: 12px;">
-                                <b class="text-blue">HIPAA Safe Harbor 18 Identifier Detection</b>
+                                <b class="text-white">HIPAA Safe Harbor 18 Identifier Detection</b>
                                 <div class="text-muted" style="font-size: 11px;">Scans for MRN, SSN, DOB, vitals, patient_id, and FHIR resource schemas.</div>
                             </div>
                             <div class="panel" style="padding: 10px; font-size: 12px;">
-                                <b class="text-blue">Variable Alias Taint Propagation</b>
+                                <b class="text-white">Variable Alias Taint Propagation</b>
                                 <div class="text-muted" style="font-size: 11px;">Tracks taint across variable assignment chains (`alias = ssn`).</div>
                             </div>
                             <div class="panel" style="padding: 10px; font-size: 12px;">
-                                <b class="text-blue">Async Route & FHIR Scope Boundary Inspection</b>
+                                <b class="text-white">Async Route & FHIR Scope Boundary Inspection</b>
                                 <div class="text-muted" style="font-size: 11px;">Inspects `visit_AsyncFunctionDef` for wildcard scopes (`*.*`) on FastAPI/FHIR.</div>
                             </div>
                             <div class="panel" style="padding: 10px; font-size: 12px;">
-                                <b class="text-blue">Strict Cryptographic Sanitizer Verification</b>
+                                <b class="text-white">Strict Cryptographic Sanitizer Verification</b>
                                 <div class="text-muted" style="font-size: 11px;">Checks that tainted data is passed as input to AES-GCM/KMS; rejects dummy sanitizers.</div>
                             </div>
                         </div>
@@ -389,7 +389,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-chart-simple text-blue"></i> Tier 1: 10-Dimensional Tree-SHAP Feature Attribution</span>
+                        <span class="card-title"><i class="fa-solid fa-chart-simple text-muted"></i> Tier 1: 10-Dimensional Tree-SHAP Feature Attribution</span>
                         <span class="badge-tag">Lundberg et al. (Nature MI 2020)</span>
                     </div>
                     <span class="font-mono text-muted" style="font-size: 11px;" id="baseExpectedValText">Base Expected Value E[f]: 28.5 pts</span>
@@ -406,10 +406,10 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-scale-balanced text-blue"></i> Tier 2: Finding-Level Cooperative Game Blame Attribution (&Phi;<sub>j</sub>)</span>
-                        <span class="badge-tag badge-tag-blue">Exact 2<sup>K</sup> Coalition Enumeration</span>
+                        <span class="card-title"><i class="fa-solid fa-scale-balanced text-muted"></i> Tier 2: Finding-Level Cooperative Game Blame Attribution (&Phi;<sub>j</sub>)</span>
+                        <span class="badge-tag">Exact 2<sup>K</sup> Coalition Enumeration</span>
                     </div>
-                    <span class="font-mono text-blue" style="font-size: 12px;" id="totalExcessRiskVal">Total Excess Finding Risk: +63.9 pts</span>
+                    <span class="font-mono text-white" style="font-size: 12px;" id="totalExcessRiskVal">Total Excess Finding Risk: +63.9 pts</span>
                 </div>
                 <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
                     Treats each detected vulnerability as an individual player in a cooperative game. Evaluates coalition characteristic function <code>v(S)</code> to determine exact statutory blame: <code>&Sigma;&Phi;<sub>j</sub> = v(All) - v(Empty)</code>.
@@ -451,10 +451,10 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-calculator text-blue"></i> Discrete Mixed-Integer Linear Program (MILP) Remediation Optimizer</span>
+                        <span class="card-title"><i class="fa-solid fa-calculator text-muted"></i> Discrete Mixed-Integer Linear Program (MILP) Remediation Optimizer</span>
                         <span class="badge-tag">scipy.optimize.milp (0-1 ILP)</span>
                     </div>
-                    <span class="badge-tag badge-tag-green" id="closedLoopBadge"><i class="fa-solid fa-circle-check"></i> Closed-Loop AST Re-Scan Verified</span>
+                    <span class="badge-tag badge-tag-inverted" id="closedLoopBadge"><i class="fa-solid fa-circle-check"></i> Closed-Loop AST Re-Scan Verified</span>
                 </div>
                 <p style="font-size: 12px; color: var(--text-secondary); margin-bottom: 14px;">
                     Solves <code>min &Sigma; (c<sub>j</sub> &middot; z<sub>j</sub>)</code> subject to <code>&Sigma; (&Phi;<sub>j</sub> &middot; z<sub>j</sub>) &ge; &Delta;<sub>risk</sub></code> with mandatory HIPAA zero-tolerance hard bounds (<code>z<sub>j</sub> = 1</code>). Validated by closed-loop code patch simulation and automated AST re-scan.
@@ -469,7 +469,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-sliders text-blue"></i> Interactive What-If Counterfactual Lab</span>
+                        <span class="card-title"><i class="fa-solid fa-sliders text-muted"></i> Interactive What-If Counterfactual Lab</span>
                         <span class="badge-tag">Dynamic Re-Inference</span>
                     </div>
                     <button id="btnResetSimulation" class="btn btn-outline btn-sm"><i class="fa-solid fa-rotate-left"></i> Reset Sliders</button>
@@ -479,7 +479,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
                     <div class="slider-group">
                         <div class="slider-row">
                             <div class="slider-label-bar">
-                                <span><i class="fa-solid fa-bug text-critical"></i> Critical SAST Flaws (SQLi/RCE)</span>
+                                <span><i class="fa-solid fa-bug text-muted"></i> Critical SAST Flaws (SQLi/RCE)</span>
                                 <span class="slider-val-badge" id="val_sast_critical">0</span>
                             </div>
                             <input type="range" id="slider_sast_critical" min="0" max="5" step="1" value="0">
@@ -487,7 +487,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
 
                         <div class="slider-row">
                             <div class="slider-label-bar">
-                                <span><i class="fa-solid fa-lock text-critical"></i> Unencrypted PHI Flows</span>
+                                <span><i class="fa-solid fa-lock text-muted"></i> Unencrypted PHI Flows</span>
                                 <span class="slider-val-badge" id="val_unencrypted_data_flows">0</span>
                             </div>
                             <input type="range" id="slider_unencrypted_data_flows" min="0" max="4" step="1" value="0">
@@ -495,7 +495,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
 
                         <div class="slider-row">
                             <div class="slider-label-bar">
-                                <span><i class="fa-solid fa-shield-virus text-warning"></i> ePHI Exposure / Leak Score</span>
+                                <span><i class="fa-solid fa-shield-virus text-muted"></i> ePHI Exposure / Leak Score</span>
                                 <span class="slider-val-badge" id="val_phi_leak_risk_score">0</span>
                             </div>
                             <input type="range" id="slider_phi_leak_risk_score" min="0" max="100" step="5" value="0">
@@ -503,7 +503,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
 
                         <div class="slider-row">
                             <div class="slider-label-bar">
-                                <span><i class="fa-solid fa-box text-blue"></i> Dependency Max CVSS Score</span>
+                                <span><i class="fa-solid fa-box text-muted"></i> Dependency Max CVSS Score</span>
                                 <span class="slider-val-badge" id="val_sca_max_cvss">0.0</span>
                             </div>
                             <input type="range" id="slider_sca_max_cvss" min="0" max="10" step="0.1" value="0">
@@ -528,7 +528,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-code-compare text-blue"></i> Verified Cryptographic Code Remediations</span>
+                        <span class="card-title"><i class="fa-solid fa-code-compare text-muted"></i> Verified Cryptographic Code Remediations</span>
                         <span class="badge-tag">AWS KMS & Secrets Manager Ready</span>
                     </div>
                 </div>
@@ -546,8 +546,8 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-trophy text-blue"></i> Empirical Benchmark Evaluation on Clinical Test Cases</span>
-                        <span class="badge-tag badge-tag-green">AegisMed vs Industry Baselines</span>
+                        <span class="card-title"><i class="fa-solid fa-trophy text-muted"></i> Empirical Benchmark Evaluation on Clinical Test Cases</span>
+                        <span class="badge-tag badge-tag-inverted">AegisMed vs Industry Baselines</span>
                     </div>
                     <span class="font-mono text-muted" style="font-size: 11px;">Measured on benchmark_comparison.py</span>
                 </div>
@@ -569,27 +569,27 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
                                 <td>Generic Regex / Keyword Matching</td>
                                 <td style="text-align: center;" class="font-mono">0.800</td>
                                 <td style="text-align: center;" class="font-mono">0.667</td>
-                                <td style="text-align: center;" class="font-mono text-warning">0.727</td>
+                                <td style="text-align: center;" class="font-mono">0.727</td>
                                 <td style="text-align: center;" class="font-mono">1</td>
-                                <td style="text-align: center;" class="font-mono text-critical">2</td>
+                                <td style="text-align: center;" class="font-mono">2</td>
                                 <td style="text-align: center;" class="font-mono">0.4 ms</td>
                             </tr>
                             <tr>
                                 <td>Generic AST Rule Checker (Bandit/Semgrep-style)</td>
                                 <td style="text-align: center;" class="font-mono">0.750</td>
                                 <td style="text-align: center;" class="font-mono">0.500</td>
-                                <td style="text-align: center;" class="font-mono text-warning">0.600</td>
+                                <td style="text-align: center;" class="font-mono">0.600</td>
                                 <td style="text-align: center;" class="font-mono">1</td>
-                                <td style="text-align: center;" class="font-mono text-critical">3</td>
+                                <td style="text-align: center;" class="font-mono">3</td>
                                 <td style="text-align: center;" class="font-mono">0.5 ms</td>
                             </tr>
-                            <tr style="background: var(--bg-surface-subtle); border-left: 3px solid var(--status-success);">
+                            <tr style="background: #111111; border-left: 3px solid #ffffff;">
                                 <td><b>AegisMed AST Taint-Flow Analyzer (Invention)</b></td>
-                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
-                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
-                                <td style="text-align: center;" class="font-mono text-success"><b>1.000</b></td>
-                                <td style="text-align: center;" class="font-mono text-success"><b>0</b></td>
-                                <td style="text-align: center;" class="font-mono text-success"><b>0</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>1.000</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>0</b></td>
+                                <td style="text-align: center;" class="font-mono"><b>0</b></td>
                                 <td style="text-align: center;" class="font-mono"><b>0.5 ms</b></td>
                             </tr>
                         </tbody>
@@ -601,29 +601,29 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-server text-blue"></i> Empirical Grounding: U.S. HHS OCR Hospital Breach Corpus</span>
+                        <span class="card-title"><i class="fa-solid fa-server text-muted"></i> Empirical Grounding: U.S. HHS OCR Hospital Breach Corpus</span>
                         <span class="badge-tag">1,656 Physical Incidents</span>
                     </div>
                 </div>
                 <div class="metrics-summary-grid" style="margin-bottom: 14px;">
                     <div class="metric-box">
                         <span class="metric-label">Theft of Unencrypted Data</span>
-                        <span class="metric-big-num text-critical">46.6%</span>
+                        <span class="metric-big-num">46.6%</span>
                         <span class="metric-sub">Primary hospital breach cause</span>
                     </div>
                     <div class="metric-box">
                         <span class="metric-label">Unauthorized Disclosure</span>
-                        <span class="metric-big-num text-warning">26.0%</span>
+                        <span class="metric-big-num">26.0%</span>
                         <span class="metric-sub">Unmasked logging & access leaks</span>
                     </div>
                     <div class="metric-box">
                         <span class="metric-label">Hacking / IT Incidents</span>
-                        <span class="metric-big-num text-blue">13.2%</span>
+                        <span class="metric-big-num">13.2%</span>
                         <span class="metric-sub">SQLi, RCE, credential compromise</span>
                     </div>
                     <div class="metric-box">
                         <span class="metric-label">CISA KEV Multiplier</span>
-                        <span class="metric-big-num text-success">1.15x</span>
+                        <span class="metric-big-num">1.15x</span>
                         <span class="metric-sub">Active exploit factor on CVEs</span>
                     </div>
                 </div>
@@ -633,7 +633,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
             <div class="panel">
                 <div class="card-header-bar">
                     <div class="card-title-group">
-                        <span class="card-title"><i class="fa-solid fa-book-medical text-blue"></i> Healthcare Statutory Compliance Matrix</span>
+                        <span class="card-title"><i class="fa-solid fa-book-medical text-muted"></i> Healthcare Statutory Compliance Matrix</span>
                         <span class="badge-tag">HIPAA 45 CFR §164.312 &bull; FDA SaMD 524B &bull; HL7 FHIR</span>
                     </div>
                 </div>
@@ -663,7 +663,7 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
     <div id="datasetsModal" class="modal-backdrop hidden">
         <div class="modal-window">
             <div class="modal-head">
-                <h3><i class="fa-solid fa-database text-blue"></i> Physical Datasets & Empirical Training Matrix</h3>
+                <h3><i class="fa-solid fa-database text-muted"></i> Physical Datasets & Empirical Training Matrix</h3>
                 <button class="modal-close-btn" id="btnCloseDatasetsModal">&times;</button>
             </div>
             <div class="modal-content-area">
@@ -723,26 +723,26 @@ def store_patient_vitals(db, patient_id, ssn, mrn, heart_rate, bp):
     <div id="awsModal" class="modal-backdrop hidden">
         <div class="modal-window">
             <div class="modal-head">
-                <h3><i class="fa-brands fa-aws text-warning"></i> AWS Production Architecture & $50 Learner Lab Guide</h3>
+                <h3><i class="fa-brands fa-aws text-muted"></i> AWS Production Architecture & $50 Learner Lab Guide</h3>
                 <button class="modal-close-btn" id="btnCloseModal">&times;</button>
             </div>
             <div class="modal-content-area">
                 <div class="grid-2col" style="margin-bottom: 16px;">
                     <div class="panel" style="padding: 12px;">
-                        <b class="text-blue">Phase 1: Academic Container (< $3 Spend)</b>
+                        <b class="text-white">Phase 1: Academic Container (&lt; $3 Spend)</b>
                         <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
-                            Single EC2 t2.micro instance with Docker. Consumes <4% of AWS Learner Lab $50 credit. Sub-25ms inference latency.
+                            Single EC2 t2.micro instance with Docker. Consumes &lt;4% of AWS Learner Lab $50 credit. Sub-25ms inference latency.
                         </p>
                     </div>
                     <div class="panel" style="padding: 12px;">
-                        <b class="text-blue">Phase 2: Enterprise Hospital Blueprint</b>
+                        <b class="text-white">Phase 2: Enterprise Hospital Blueprint</b>
                         <p style="font-size: 12px; color: var(--text-secondary); margin-top: 4px;">
                             Multi-AZ ECS Fargate, SageMaker Serverless Inference, Amazon Neptune Graph, and AWS HealthLake FHIR datastore.
                         </p>
                     </div>
                 </div>
                 <div style="font-size: 12px; font-weight: 700; margin-bottom: 6px;">Deployment Command:</div>
-                <pre style="background: var(--bg-base); padding: 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; color: var(--accent-blue);">git clone https://github.com/tusharchoudhary8e8e/Healthcare_AI_Cloud_Project_2026.git
+                <pre style="background: var(--bg-base); padding: 10px; border-radius: 6px; font-family: var(--font-mono); font-size: 11px; color: #ffffff; border: 1px solid var(--border-subtle);">git clone https://github.com/tusharchoudhary8e8e/Healthcare_AI_Cloud_Project_2026.git
 cd Healthcare_AI_Cloud_Project_2026
 docker build -t aegismed . && docker run -d -p 80:8000 aegismed</pre>
             </div>
@@ -753,6 +753,6 @@ docker build -t aegismed . && docker run -d -p 80:8000 aegismed</pre>
     </div>
 
     <!-- App Controller Script -->
-    <script src="/static/app.js?v=3.0"></script>
+    <script src="/static/app.js?v=4.0"></script>
 </body>
 </html>
